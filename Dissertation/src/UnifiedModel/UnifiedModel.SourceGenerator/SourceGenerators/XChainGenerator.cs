@@ -4,10 +4,12 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 {
     public interface XChainGenerator
     {
-        void AddClass(Modifiers modifier, string name);
+        string AddClass(Modifiers modifier, string name, string parentHash);
 
-        void AddField(Modifiers modifier, Types type, string name);
+        string AddField(Modifiers modifier, Types type, string name, string parentHash);
 
-        string Consume();
+        void Consume();
+
+        string ToString();
     }
 }
