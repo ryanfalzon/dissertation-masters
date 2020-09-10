@@ -14,12 +14,10 @@ namespace UnifiedModel.SourceGenerator.OffChainModels
         public string Name { get; set; }
 
         [JsonProperty("fields")]
-        public List<Field> Fields { get; set; }
+        public IEnumerable<Field> Fields { get; set; }
 
-        public Class()
-        {
-            Fields = new List<Field>();
-        }
+        [JsonProperty("method")]
+        public IEnumerable<Method> Methods { get; set; }
 
         public Class(Modifiers modifier, string name, string parentHash)
         {
@@ -27,11 +25,15 @@ namespace UnifiedModel.SourceGenerator.OffChainModels
             Name = name;
             ParentHash = parentHash;
             Fields = new List<Field>();
+            Methods = new List<Method>();
         }
 
         public override string ToString()
         {
-            return $"{Modifier} class {Name} {{ \n{string.Join("\n", Fields.Select(field => field.ToString()))} }}";
+            return $"{Modifier} class {Name}{{\n" +
+                $"{string.Join("\n", Fields.Select(field => field.ToString()))}\n" +
+                $"{string.Join("\n", Methods.Select(field => field.ToString()))}\n" +
+                $"}}";
         }
     }
 }

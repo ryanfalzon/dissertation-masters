@@ -1,10 +1,8 @@
 ﻿namespace UnifiedModel.SourceGenerator.SourceGenerators
 {
-    public enum XChains
+    public enum XOnChains
     {
-        XOffChain,
-
-        XOnChain,
+        Ethereum,
 
         XAll
     }

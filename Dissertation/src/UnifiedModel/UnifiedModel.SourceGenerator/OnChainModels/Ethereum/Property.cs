@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using UnifiedModel.SourceGenerator.CommonModels;
 
-namespace UnifiedModel.SourceGenerator.OffChainModels
+namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
 {
-    public class Field: ChainModel
+    public class Property : ChainModel
     {
         [JsonProperty("modifier")]
         public Modifiers Modifier { get; set; }
@@ -14,7 +14,15 @@ namespace UnifiedModel.SourceGenerator.OffChainModels
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        public Field(Modifiers modifier, Types type, string name, string parentHash)
+        public Property(Types type, string name, string parentHash)
+        {
+            Modifier = Modifiers.@public;
+            Type = type;
+            Name = name;
+            ParentHash = parentHash;
+        }
+
+        public Property(Modifiers modifier, Types type, string name, string parentHash)
         {
             Modifier = modifier;
             Type = type;
@@ -24,7 +32,7 @@ namespace UnifiedModel.SourceGenerator.OffChainModels
 
         public override string ToString()
         {
-            return $"{Modifier} {Type} {Name} {{ get; set; }}\n";
+            return $"{Modifier} {Type} {Name};";
         }
     }
 }

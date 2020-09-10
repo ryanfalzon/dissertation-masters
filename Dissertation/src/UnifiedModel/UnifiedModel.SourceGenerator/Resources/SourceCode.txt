@@ -1,0 +1,32 @@
+[XAll()]
+public class User : XModel
+{
+	[XOffChain()]
+	public int Id;
+	
+	[XOnChain()]
+	public string PublicKey;
+	
+	[XOffChain()]
+	public string Hash;
+	
+	[XOffChain()]
+	public string FirstName;
+	
+	[XOffChain()]
+	public string LastName;
+	
+	[XOffChain()]
+	public string Email;
+	
+	[XOffChain()]
+	public int Mobile;
+	
+	[XOffChain()]
+	public string Description;
+	
+	[XOffChain()]
+	public void BuyProperty(int x){
+		x+=1;
+	}
+}

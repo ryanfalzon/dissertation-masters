@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
+using UnifiedModel.SourceGenerator.SourceGenerators;
 
 namespace UnifiedModel.SourceGenerator.Helpers
 {
@@ -36,6 +38,22 @@ namespace UnifiedModel.SourceGenerator.Helpers
             else
             {
                 return new byte[length];
+            }
+        }
+
+        public static XChains GetEnumeratedType(this IXChainGenerator generator)
+        {
+            if (generator.GetType() == typeof(XOffChainGenerator))
+            {
+                return XChains.XOffChain;
+            }
+            else if (generator.GetType() == typeof(XOnChainGenerator))
+            {
+                return XChains.XOnChain;
+            }
+            else
+            {
+                throw new InvalidExpressionException("Invalid annotated code");
             }
         }
     }

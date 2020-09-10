@@ -1,4 +1,4 @@
-﻿namespace UnifiedModel.SourceGenerator.OffChainModels
+﻿namespace UnifiedModel.SourceGenerator.CommonModels
 {
     public enum Modifiers
     {
