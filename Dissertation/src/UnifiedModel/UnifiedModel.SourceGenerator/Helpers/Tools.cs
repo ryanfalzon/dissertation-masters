@@ -45,11 +45,11 @@ namespace UnifiedModel.SourceGenerator.Helpers
         {
             if (generator.GetType() == typeof(XOffChainGenerator))
             {
-                return XChains.XOffChain;
+                return XChains.OffChain;
             }
             else if (generator.GetType() == typeof(XOnChainEthereumGenerator))
             {
-                return XChains.XOnChain;
+                return XChains.EthereumChain;
             }
             else
             {

@@ -75,7 +75,7 @@ namespace UnifiedModel.SourceGenerator
                             Enum.TryParse(fieldDeclarationSyntax.Declaration.Type.ToString(), out Types type);
                             var name = fieldDeclarationSyntax.Declaration.Variables.ToString();
                             var attribute = fieldDeclarationSyntax.AttributeLists[0].Attributes[0].Name.ToString();
-                            var attributeArgument = fieldDeclarationSyntax.AttributeLists.First()?.Attributes.First()?.ArgumentList.Arguments.First()?.ToString();
+                            var attributeArgument = fieldDeclarationSyntax.AttributeLists.FirstOrDefault()?.Attributes.FirstOrDefault()?.ArgumentList.Arguments.FirstOrDefault()?.ToString();
                             var fieldHashes = Generator.Get(attribute, attributeArgument).Select(generator =>
                             {
                                 var key = generator.GetEnumeratedType();

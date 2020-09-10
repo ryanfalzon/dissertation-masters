@@ -6,7 +6,7 @@ using UnifiedModel.SourceGenerator.OnChainModels.Ethereum;
 
 namespace UnifiedModel.SourceGenerator.SourceGenerators
 {
-    public class XOnChainEthereumGenerator : XOnChainGenerator
+    public class XOnChainEthereumGenerator : XChainGenerator
     {
         public XOnChainEthereumGenerator() : base()
         {

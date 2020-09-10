@@ -2,12 +2,10 @@
 {
     public enum XChains
     {
-        XOffChain,
+        OffChain,
 
-        XOnChain,
+        EthereumChain,
 
-        XAll,
-
-        Ethereum
+        NeoChain
     }
 }

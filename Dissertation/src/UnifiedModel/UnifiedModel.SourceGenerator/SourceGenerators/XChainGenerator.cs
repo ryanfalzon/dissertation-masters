@@ -3,33 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnifiedModel.SourceGenerator.CommonModels;
-using UnifiedModel.SourceGenerator.OffChainModels;
 
 namespace UnifiedModel.SourceGenerator.SourceGenerators
 {
-    public abstract class XOnChainGenerator : IXChainGenerator
+    public abstract class XChainGenerator : IXChainGenerator
     {
-        public List<Class> Classes { get; set; }
+        public List<ChainModel> Models { get; set; }
 
         public List<ChainModel> Memory { get; set; }
 
-        public XOnChainGenerator()
+        public XChainGenerator()
         {
-            Classes = new List<Class>();
+            Models = new List<ChainModel>();
             Memory = new List<ChainModel>();
         }
 
         public abstract string AddClass(Modifiers modifier, string name, string parentHash);
-        public abstract string AddField(Modifiers modifier, Types type, string name, string parentHash);
-        public abstract string AddMethod(Modifiers modifier, string returnType, string identifier, string parentHash);
+
         public abstract string AddExpression(string statement, string parentHash);
+
+        public abstract string AddField(Modifiers modifier, Types type, string name, string parentHash);
+
+        public abstract string AddMethod(Modifiers modifier, string returnType, string identifier, string parentHash);
+
+        public override string ToString()
+        {
+            return $"{string.Join("\n", Models.Select(@class => @class.ToString()))}";
+        }
 
         public void Consume()
         {
-            var classes = Memory.Where(@object => @object.GetType() == typeof(Class)).ToList();
-            foreach (var @class in classes)
+            var models = Memory.Where(item => item.ParentHash.Equals(string.Empty));
+
+            foreach(var item in models)
             {
-                Classes.Add((Class)Consume(@class));
+                Models.Add(Consume(item));
             }
         }
 
@@ -66,11 +74,6 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             }
 
             return current;
-        }
-
-        public override string ToString()
-        {
-            return $"{string.Join("\n", Classes.Select(@class => @class.ToString()))}";
         }
     }
 }

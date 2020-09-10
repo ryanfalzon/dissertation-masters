@@ -1,5 +1,4 @@
 ﻿using UnifiedModel.SourceGenerator.CommonModels;
-using UnifiedModel.SourceGenerator.OffChainModels;
 
 namespace UnifiedModel.SourceGenerator.SourceGenerators
 {
@@ -14,7 +13,5 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
         string AddExpression(string statement, string parentHash);
 
         void Consume();
-
-        string ToString();
     }
 }

@@ -4,7 +4,7 @@ public class User : XModel
 	[XOnChain("Ethereum")]
 	public int Id;
 	
-	[XOnChain()]
+	[XOffChain()]
 	public string PublicKey;
 	
 	[XOffChain()]
