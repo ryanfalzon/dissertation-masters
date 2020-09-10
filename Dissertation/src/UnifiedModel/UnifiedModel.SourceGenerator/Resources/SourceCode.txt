@@ -1,7 +1,7 @@
 [XAll()]
 public class User : XModel
 {
-	[XOffChain()]
+	[XOnChain("Ethereum")]
 	public int Id;
 	
 	[XOnChain()]
@@ -28,5 +28,9 @@ public class User : XModel
 	[XOffChain()]
 	public void BuyProperty(int x){
 		x+=1;
+
+		@XOnChain("Ethereum"){
+			Assert(x);
+		}
 	}
 }

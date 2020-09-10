@@ -9,28 +9,50 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
     {
         public Dictionary<XChains, IXChainGenerator> XChainGenerators { get; set; }
 
-        public XOnChainGeneratorFactory XOnChainGeneratorFactory { get; set; }
-
         public XChainGeneratorFactory()
         {
             XChainGenerators = new Dictionary<XChains, IXChainGenerator>();
-            XOnChainGeneratorFactory = new XOnChainGeneratorFactory();
         }
 
         public List<IXChainGenerator> Get(string xChain, string xOnChain = null)
         {
-            if(Enum.TryParse(xChain, out XChains parsedXChain))
+            if (Enum.TryParse(xChain, out XChains parsedXChain))
             {
-                if (XChainGenerators.ContainsKey(parsedXChain))
+                xOnChain = xOnChain != null && xOnChain.Contains("\"") ? xOnChain.Replace("\"", "") : xOnChain;
+                Enum.TryParse(xOnChain, out XChains parsedXOnChain);
+
+                if(parsedXChain == XChains.XAll)
                 {
                     var xChainGenerators = new List<IXChainGenerator>();
 
-                    switch (parsedXChain)
+                    foreach (XChains currentXChain in (XChains[])Enum.GetValues(typeof(XChains)))
                     {
-                        case XChains.XAll: xChainGenerators.Add(XChainGenerators[XChains.XOffChain]); break;
-                        case XChains.XOnChain: xChainGenerators.AddRange(XOnChainGeneratorFactory.Get(xOnChain)); break;
-                        case XChains.XOffChain: xChainGenerators.Add(XChainGenerators[parsedXChain]); break;
-                        default: xChainGenerators.Add(XChainGenerators[parsedXChain]); break;
+                        if(currentXChain != XChains.XAll && currentXChain != XChains.XOnChain)
+                        {
+                            if (XChainGenerators.ContainsKey(currentXChain))
+                            {
+                                xChainGenerators.Add(XChainGenerators[currentXChain]);
+                            }
+                            else
+                            {
+                                xChainGenerators.AddRange(Get(currentXChain.ToString()));
+                            }
+                        }
+                    }
+
+                    return xChainGenerators;
+                }
+                else if (XChainGenerators.ContainsKey(parsedXChain) || ((parsedXChain == XChains.XOnChain) && XChainGenerators.ContainsKey(parsedXOnChain)))
+                {
+                    var xChainGenerators = new List<IXChainGenerator>();
+
+                    if(parsedXChain == XChains.XOnChain)
+                    {
+                        xChainGenerators.Add(XChainGenerators[parsedXOnChain]);
+                    }
+                    else
+                    {
+                        xChainGenerators.Add(XChainGenerators[parsedXChain]);
                     }
 
                     return xChainGenerators;
@@ -41,14 +63,24 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
                     switch (parsedXChain)
                     {
-                        case XChains.XAll:
-                            Get(XChains.XOffChain.ToString());
-                            xChainGenerators = XChainGenerators.Values.ToList();
-                            xChainGenerators.AddRange(XOnChainGeneratorFactory.Get(XOnChains.XAll.ToString()));
+                        case XChains.XOnChain:
+                            switch (parsedXOnChain)
+                            {
+                                case XChains.Ethereum:
+                                    xChainGenerators.Add(new XOnChainEthereumGenerator());
+                                    XChainGenerators.Add(parsedXOnChain, xChainGenerators.First());
+                                    break;
+
+                                default:
+                                    xChainGenerators.Add(new XOnChainEthereumGenerator());
+                                    XChainGenerators.Add(parsedXOnChain, xChainGenerators.First());
+                                    break;
+                            }
                             break;
 
-                        case XChains.XOnChain:
-                            xChainGenerators.AddRange(XOnChainGeneratorFactory.Get(XOnChains.XAll.ToString()));
+                        case XChains.Ethereum:
+                            xChainGenerators.Add(new XOnChainEthereumGenerator());
+                            XChainGenerators.Add(parsedXChain, xChainGenerators.First());
                             break;
 
                         case XChains.XOffChain:

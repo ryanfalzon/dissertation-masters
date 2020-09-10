@@ -6,6 +6,8 @@
 
         XOnChain,
 
-        XAll
+        XAll,
+
+        Ethereum
     }
 }
