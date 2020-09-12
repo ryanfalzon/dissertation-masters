@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using UnifiedModel.SourceGenerator.CommonModels;
 
 namespace UnifiedModel.SourceGenerator.SourceGenerators
 {
@@ -13,11 +14,6 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             XChainGenerators = new Dictionary<XChains, IXChainGenerator>();
         }
 
-        private const string XOffChain = "XOffChain";
-        private const string XOnChain = "XOnChain";
-        private const string XAll = "XAll";
-        private const string XOnEthereumChain = "Ethereum";
-
         public List<IXChainGenerator> Get(string xChain, string xOnChain = null)
         {
             if (!string.IsNullOrEmpty(xChain))
@@ -26,7 +22,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
                 switch (xChain)
                 {
-                    case XAll:
+                    case Constants.XAll:
                         {
                             foreach (XChains currentXChain in (XChains[])Enum.GetValues(typeof(XChains)))
                             {
@@ -34,13 +30,13 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
                                 {
                                     case XChains.OffChain:
                                         {
-                                            xChainGenerators.AddRange(Get(XOffChain));
+                                            xChainGenerators.AddRange(Get(Constants.XOffChain));
                                             break;
                                         }
 
                                     case XChains.EthereumChain:
                                         {
-                                            xChainGenerators.AddRange(Get(XOnChain, XOnEthereumChain));
+                                            xChainGenerators.AddRange(Get(Constants.XOnChain, Constants.XOnEthereumChain));
                                             break;
                                         }
                                 }
@@ -48,14 +44,14 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
                             break;
                         }
 
-                    case XOffChain:
+                    case Constants.XOffChain:
                         {
                             EnsureExists<XOffChainGenerator>(XChains.OffChain);
                             xChainGenerators.Add(XChainGenerators[XChains.OffChain]);
                             break;
                         }
 
-                    case XOnChain:
+                    case Constants.XOnChain:
                         {
                             if (!string.IsNullOrEmpty(xOnChain))
                             {

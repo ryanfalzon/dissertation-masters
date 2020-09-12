@@ -13,9 +13,9 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             
         }
 
-        public override string AddClass(Modifiers modifier, string name, string parentHash)
+        public override string AddClass(Modifiers modifier, string name, bool isModel, string parentHash)
         {
-            Class @class = new Class(modifier, name, parentHash);
+            Class @class = new Class(modifier, name, isModel, parentHash);
             @class.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@class))));
             Memory.Add(@class);
 

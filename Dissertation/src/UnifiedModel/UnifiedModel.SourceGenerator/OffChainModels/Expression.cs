@@ -17,7 +17,7 @@ namespace UnifiedModel.SourceGenerator.OffChainModels
 
         public override string ToString()
         {
-            return $"{Statement}";
+            return $"{Statement};";
         }
     }
 }

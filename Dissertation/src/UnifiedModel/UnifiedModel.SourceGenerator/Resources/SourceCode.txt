@@ -1,13 +1,13 @@
 [XAll()]
 public class User : XModel
 {
-	[XOnChain("Ethereum")]
+	[XOffChain()]
 	public int Id;
 	
-	[XOffChain()]
+	[XOnChain("Ethereum")]
 	public string PublicKey;
 	
-	[XOffChain()]
+	[XOnChain("Ethereum")]
 	public string Hash;
 	
 	[XOffChain()]
@@ -24,13 +24,26 @@ public class User : XModel
 	
 	[XOffChain()]
 	public string Description;
-	
-	[XOffChain()]
-	public void BuyProperty(int x){
-		x+=1;
+}
 
-		@XOnChain("Ethereum"){
-			Assert(x);
+[XAll()]
+public class SocialNetwork
+{
+	[XOnChain("Ethereum")]
+	public const int FEE = 1;
+
+	[XOffChain()]
+	public void CreateProfile(User user){
+		Assert(user.IsNotNull());
+
+		user.Hash = BlockchainTools.Hash(user);
+		@XOnChain("Ethereum", profile)
+		{
+			Assert(Tx.user.balance >= FEE);
+			Store(user);
+			Tx.user.balance -= FEE;
 		}
+		
+		Store(profile);
 	}
 }

@@ -13,17 +13,21 @@ namespace UnifiedModel.SourceGenerator.OffChainModels
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        [JsonProperty("isModel")]
+        public bool IsModel { get; set; }
+
         [JsonProperty("fields")]
         public IEnumerable<Field> Fields { get; set; }
 
         [JsonProperty("method")]
         public IEnumerable<Method> Methods { get; set; }
 
-        public Class(Modifiers modifier, string name, string parentHash)
+        public Class(Modifiers modifier, string name, bool isModel, string parentHash)
         {
             Modifier = modifier;
             Name = name;
             ParentHash = parentHash;
+            IsModel = isModel;
             Fields = new List<Field>();
             Methods = new List<Method>();
         }

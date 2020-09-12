@@ -1,4 +1,8 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnifiedModel.SourceGenerator.CommonModels;
 using UnifiedModel.SourceGenerator.Helpers;
@@ -13,13 +17,24 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
         }
 
-        public override string AddClass(Modifiers modifier, string name, string parentHash)
+        public override string AddClass(Modifiers modifier, string name, bool isModel, string parentHash)
         {
-            Contract contract = new Contract(name, parentHash);
-            contract.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(contract))));
-            Memory.Add(contract);
+            if (isModel)
+            {
+                Struct @struct = new Struct(name, parentHash);
+                @struct.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@struct))));
+                Memory.Add(@struct);
 
-            return contract.Hash;
+                return @struct.Hash;
+            }
+            else
+            {
+                Contract contract = new Contract(name, parentHash);
+                contract.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(contract))));
+                Memory.Add(contract);
+
+                return contract.Hash;
+            }
         }
 
         public override string AddField(Modifiers modifier, Types type, string name, string parentHash)

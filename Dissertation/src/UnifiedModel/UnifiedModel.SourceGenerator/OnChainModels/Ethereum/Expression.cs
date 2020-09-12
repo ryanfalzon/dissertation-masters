@@ -16,7 +16,7 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
 
         public override string ToString()
         {
-            return $"{Statement}";
+            return $"{Statement};";
         }
     }
 }

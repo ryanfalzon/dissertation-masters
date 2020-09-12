@@ -14,9 +14,9 @@ namespace UnifiedModel.SourceGenerator
 {
     public class LexicalAnalyser
     {
-        public string FileContent { get; set; }
+        private readonly string FileContent;
 
-        private XChainGeneratorFactory Generator;
+        private readonly XChainGeneratorFactory Generator;
 
         public LexicalAnalyser(string filePath)
         {
@@ -30,13 +30,13 @@ namespace UnifiedModel.SourceGenerator
             ProcessChild(root);
 
             var files = Generator.Consume();
-            foreach(var file in files)
+            foreach(var (filename, contents) in files)
             {
-                File.WriteAllText($"C://temp/{file.filename}", file.contents);
+                File.WriteAllText($"C://temp/{filename}.txt", contents);
             }
         }
 
-        private void ProcessChild(SyntaxNode syntaxNode, Dictionary<XChains, string> parentHashes = null, string previousAttribute = null)
+        private void ProcessChild(SyntaxNode syntaxNode, Dictionary<XChains, string> parentHashes = null, string previousAttribute = null, string previousAttributeArgument = null)
         {
             switch (syntaxNode.Kind())
             {
@@ -48,17 +48,19 @@ namespace UnifiedModel.SourceGenerator
                         {
                             Enum.TryParse(classDeclarationSyntax.Modifiers.First().ValueText, out Modifiers modifier);
                             var name = classDeclarationSyntax.Identifier.ValueText;
+                            var baseType = classDeclarationSyntax.BaseList?.Types.ToString();
                             var attribute = classDeclarationSyntax.AttributeLists[0].Attributes[0].Name.ToString();
+                            var attributeArgument = classDeclarationSyntax.AttributeLists.FirstOrDefault()?.Attributes.FirstOrDefault()?.ArgumentList.Arguments.FirstOrDefault()?.ToString();
                             var classHashes = Generator.Get(attribute).Select(generator =>
                             {
                                 var key = generator.GetEnumeratedType();
-                                var value = generator.AddClass(modifier, name, parentHashes == null ? string.Empty : parentHashes[key]);
+                                var value = generator.AddClass(modifier, name, !string.IsNullOrEmpty(baseType) && baseType.Equals("XModel"), parentHashes == null ? string.Empty : parentHashes[key]);
                                 return new KeyValuePair<XChains, string>(key, value);
                             }).ToDictionary(x => x.Key, x => x.Value);
 
                             foreach (var member in classDeclarationSyntax.Members)
                             {
-                                ProcessChild(member, classHashes);
+                                ProcessChild(member, classHashes, attribute, attributeArgument);
                             }
                         }
 
@@ -96,7 +98,9 @@ namespace UnifiedModel.SourceGenerator
                             Enum.TryParse(methodDeclarationSyntax.Modifiers.First().ValueText, out Modifiers modifier);
                             var returnType = methodDeclarationSyntax.ReturnType.ToString();
                             var identifier = methodDeclarationSyntax.Identifier.ValueText;
+                            var parameters = methodDeclarationSyntax.ParameterList.Parameters.ToString();
                             var attribute = methodDeclarationSyntax.AttributeLists[0].Attributes[0].Name.ToString();
+                            var attributeArgument = methodDeclarationSyntax.AttributeLists.FirstOrDefault()?.Attributes.FirstOrDefault()?.ArgumentList.Arguments.FirstOrDefault()?.ToString();
                             var methodHashes = Generator.Get(attribute).Select(generator =>
                             {
                                 var key = generator.GetEnumeratedType();
@@ -108,21 +112,25 @@ namespace UnifiedModel.SourceGenerator
                             while(statementQueue.Count > 0)
                             {
                                 var member = statementQueue.Dequeue();
-                                if(Regex.IsMatch(member.ToString(), "@XOnChain\\(\"[a-zA-Z]+\"\\)"))
+                                if(Regex.IsMatch(member.ToString(), Constants.XOnChainRegex))
                                 {
                                     if(statementQueue.Peek().Kind() == SyntaxKind.Block)
                                     {
-                                        // Create a method in the XOnChainGenerator
+                                        var blockAttribute = member.ToString().Split('"')[1];
 
-                                        statementQueue.Dequeue();
-                                        // Process on chain code
+                                        var memberHashes = Generator.Get(Constants.XOnChain, blockAttribute).Select(generator =>
+                                        {
+                                            var key = generator.GetEnumeratedType();
+                                            var value = generator.AddMethod(Modifiers.@public, returnType, identifier, parentHashes == null ? string.Empty : parentHashes[key]);
+                                            return new KeyValuePair<XChains, string>(key, value);
+                                        }).ToDictionary(x => x.Key, x => x.Value);
 
-                                        // Create calling code in off chain code
+                                        ProcessChild(statementQueue.Dequeue(), memberHashes, Constants.XOnChain, blockAttribute);
                                     }
                                 }
                                 else
                                 {
-                                    ProcessChild(member, methodHashes, attribute);
+                                    ProcessChild(member, methodHashes, attribute, attributeArgument);
                                 }
                             }
                         }
@@ -131,31 +139,37 @@ namespace UnifiedModel.SourceGenerator
                     }
 
                 case SyntaxKind.ExpressionStatement:
-                    ExpressionStatementSyntax expressionStatementSyntax = (ExpressionStatementSyntax)syntaxNode;
-
-                    if(previousAttribute != null)
                     {
-                        var statement = expressionStatementSyntax.Expression.ToString();
-                        var statementHashes = Generator.Get(previousAttribute).Select(generator =>
+                        ExpressionStatementSyntax expressionStatementSyntax = (ExpressionStatementSyntax)syntaxNode;
+
+                        if (previousAttribute != null)
                         {
-                            var key = generator.GetEnumeratedType();
-                            var value = generator.AddExpression(statement, parentHashes == null ? string.Empty : parentHashes[key]);
-                            return new KeyValuePair<XChains, string>(key, value);
-                        }).ToDictionary(x => x.Key, x => x.Value);
+                            var statement = expressionStatementSyntax.Expression.ToString();
+                            var statementHashes = Generator.Get(previousAttribute, previousAttributeArgument).Select(generator =>
+                            {
+                                var key = generator.GetEnumeratedType();
+                                var value = generator.AddExpression(statement, parentHashes == null ? string.Empty : parentHashes[key]);
+                                return new KeyValuePair<XChains, string>(key, value);
+                            }).ToDictionary(x => x.Key, x => x.Value);
+                        }
+
+                        break;
                     }
 
-                    break;
+                case SyntaxKind.Block:
+                    {
+                        BlockSyntax blockSyntax = (BlockSyntax)syntaxNode;
 
-                //case SyntaxKind.Block:
-                //    BlockSyntax blockSyntax = (BlockSyntax)syntaxNode;
+                        if (previousAttribute != null)
+                        {
+                            foreach (var child in blockSyntax.ChildNodes())
+                            {
+                                ProcessChild(child, parentHashes, previousAttribute, previousAttributeArgument);
+                            }
+                        }
 
-                //    if(previousAttribute != null)
-                //    {
-                //        foreach(var child in blockSyntax.ChildNodes())
-                //        {
-                //            ProcessChild(member)
-                //        }
-                //    }
+                        break;
+                    }
 
                 default:
                     {

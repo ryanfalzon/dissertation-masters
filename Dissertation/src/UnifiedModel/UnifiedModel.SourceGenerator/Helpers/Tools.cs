@@ -11,10 +11,8 @@ namespace UnifiedModel.SourceGenerator.Helpers
     {
         public static byte[] GetSha256Hash(byte[] data)
         {
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                return sha256Hash.ComputeHash(data);
-            }
+            using SHA256 sha256Hash = SHA256.Create();
+            return sha256Hash.ComputeHash(data);
         }
 
         public static string ByteToHex(byte[] data)

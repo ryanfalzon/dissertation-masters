@@ -18,7 +18,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             Memory = new List<ChainModel>();
         }
 
-        public abstract string AddClass(Modifiers modifier, string name, string parentHash);
+        public abstract string AddClass(Modifiers modifier, string name, bool isModel, string parentHash);
 
         public abstract string AddExpression(string statement, string parentHash);
 
@@ -41,7 +41,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             }
         }
 
-        private ChainModel Consume(ChainModel current)
+        protected virtual ChainModel Consume(ChainModel current)
         {
             var children = Memory.Where(potentialChild => potentialChild.ParentHash.Equals(current.Hash)).ToList();
             for (int i = 0; i < children.Count; i++)
