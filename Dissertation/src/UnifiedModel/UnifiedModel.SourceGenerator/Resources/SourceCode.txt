@@ -37,7 +37,7 @@ public class SocialNetwork
 		Assert(user.IsNotNull());
 
 		user.Hash = BlockchainTools.Hash(user);
-		@XOnChain("Ethereum", profile)
+		@XOnChain("Ethereum", user)
 		{
 			Assert(Tx.user.balance >= FEE);
 			Store(user);

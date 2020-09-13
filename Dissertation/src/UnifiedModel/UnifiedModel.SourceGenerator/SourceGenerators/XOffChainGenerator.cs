@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Linq;
 using System.Text;
 using UnifiedModel.SourceGenerator.CommonModels;
 using UnifiedModel.SourceGenerator.Helpers;
@@ -31,9 +32,9 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             return field.Hash;
         }
 
-        public override string AddMethod(Modifiers modifier, string returnType, string identifier, string parentHash)
+        public override string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parentHash)
         {
-            Method method = new Method(modifier, returnType, identifier, parentHash);
+            Method method = new Method(modifier, returnType, identifier, parameters, parentHash);
             method.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(method))));
             Memory.Add(method);
 
@@ -47,6 +48,12 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             Memory.Add(expression);
 
             return expression.Hash;
+        }
+
+        public override string CreatePropertyArgument(string hash)
+        {
+            Field field = (Field)Memory.Where(item => item.Hash.Equals(hash)).FirstOrDefault();
+            return $"{field.Type} {field.Name}";
         }
     }
 }

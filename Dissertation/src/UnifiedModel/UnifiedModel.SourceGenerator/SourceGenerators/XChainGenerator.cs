@@ -24,7 +24,9 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
         public abstract string AddField(Modifiers modifier, Types type, string name, string parentHash);
 
-        public abstract string AddMethod(Modifiers modifier, string returnType, string identifier, string parentHash);
+        public abstract string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parentHash);
+
+        public abstract string CreatePropertyArgument(string hash);
 
         public override string ToString()
         {

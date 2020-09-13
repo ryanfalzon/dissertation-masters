@@ -8,11 +8,12 @@
 
         public const string XAll = "XAll";
 
+        public const string XModel = "XModel";
+
         public const string XOnEthereumChain = "Ethereum";
 
-        //public const string XOnChainRegex = "@XOnChain\\(\"[a-zA-Z]+\",\\)";
         public const string XOnChainRegex = "@XOnChain\\(\"[a-zA-Z]+\"(,{1} +[a-zA-Z]+)*\\)";
 
-        public const string XCallExpression = "XCall(\"{0}\"\"{1}\"\"{2}\");";
+        public const string XCallExpression = "XCall(\"{0}\", \"{1}\", {2})";
     }
 }

@@ -16,20 +16,25 @@ namespace UnifiedModel.SourceGenerator.OffChainModels
         [JsonProperty("identifier")]
         public string Identifier { get; set; }
 
+        [JsonProperty("parameters")]
+        public string Parameters { get; set; }
+
+        [JsonProperty("expressions")]
         public IEnumerable<Expression> Expressions { get; set; }
 
-        public Method(Modifiers modifier, string returnType, string identifier, string parentHash)
+        public Method(Modifiers modifier, string returnType, string identifier, string parameters, string parentHash)
         {
             Modifier = modifier;
             ReturnType = returnType;
             Identifier = identifier;
+            Parameters = parameters;
             ParentHash = parentHash;
             Expressions = new List<Expression>();
         }
 
         public override string ToString()
         {
-            return $"{Modifier} {ReturnType} {Identifier} ()\n" +
+            return $"{Modifier} {ReturnType} {Identifier} ({Parameters})\n" +
                 $"{{\n" +
                 $"{string.Join("\n", Expressions.Select(expression => expression.ToString()))}\n" +
                 $"}}";

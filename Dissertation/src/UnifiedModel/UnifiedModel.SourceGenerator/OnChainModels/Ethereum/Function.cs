@@ -13,6 +13,10 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
         [JsonProperty("modifier")]
         public Modifiers Modifier { get; set; }
 
+        [JsonProperty("parameters")]
+        public string Parameters { get; set; }
+
+        [JsonProperty("expressions")]
         public IEnumerable<Expression> Expressions { get; set; }
 
         public Function(string name, Modifiers modifier, string parentHash)

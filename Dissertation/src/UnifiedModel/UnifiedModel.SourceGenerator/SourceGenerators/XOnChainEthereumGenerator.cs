@@ -1,8 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using UnifiedModel.SourceGenerator.CommonModels;
 using UnifiedModel.SourceGenerator.Helpers;
@@ -46,7 +43,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             return property.Hash;
         }
 
-        public override string AddMethod(Modifiers modifier, string returnType, string identifier, string parentHash)
+        public override string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parentHash)
         {
             Function function = new Function(identifier, modifier, parentHash);
             function.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(function))));
@@ -62,6 +59,12 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             Memory.Add(expression);
 
             return expression.Hash;
+        }
+
+        public override string CreatePropertyArgument(string hash)
+        {
+            Property property = (Property)Memory.Where(item => item.Hash.Equals(hash)).FirstOrDefault();
+            return $"{property.Type} {property.Name}";
         }
     }
 }
