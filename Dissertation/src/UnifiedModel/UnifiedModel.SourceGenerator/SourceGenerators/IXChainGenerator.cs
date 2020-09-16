@@ -4,6 +4,8 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 {
     public interface IXChainGenerator
     {
+        string FileExtension { get; set; }
+
         string AddClass(Modifiers modifier, string name, bool isModel, string parentHash);
 
         string AddField(Modifiers modifier, Types type, string name, string parentHash);

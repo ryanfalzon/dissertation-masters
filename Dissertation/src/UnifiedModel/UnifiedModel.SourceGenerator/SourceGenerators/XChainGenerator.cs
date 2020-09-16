@@ -12,6 +12,8 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
         public List<ChainModel> Memory { get; set; }
 
+        public string FileExtension { get; set; }
+
         public XChainGenerator()
         {
             Models = new List<ChainModel>();

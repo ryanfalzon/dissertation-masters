@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnifiedModel.SourceGenerator.CommonModels;
+using UnifiedModel.SourceGenerator.Helpers;
 
 namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
 {
@@ -26,11 +27,17 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
 
         public override string ToString()
         {
-            return $"pragma solidity >=0.4.22 <0.7.0;" +
-                $"contract {Name}{{\n" +
+            Tools.IndentationLevel = 0;
+
+            var content = $"pragma solidity >=0.4.22 <0.7.0;\n".Tabulate() +
+                $"contract {Name}{{\n".Tabulate() +
                 $"{string.Join("\n", Properties.Select(property => property.ToString()))}\n" +
                 $"{string.Join("\n", Functions.Select(function => function.ToString()))}\n" +
-                $"}}";
+                $"}}".Tabulate();
+
+            Tools.IndentationLevel = 0;
+
+            return content;
         }
     }
 }

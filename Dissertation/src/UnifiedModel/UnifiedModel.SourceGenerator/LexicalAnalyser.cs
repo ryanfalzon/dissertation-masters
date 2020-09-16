@@ -36,7 +36,7 @@ namespace UnifiedModel.SourceGenerator
             var files = Generator.Consume();
             foreach(var (filename, contents) in files)
             {
-                File.WriteAllText($"C://temp/{filename}.txt", contents);
+                File.WriteAllText($"C://temp/{filename}", contents);
             }
         }
 

@@ -103,7 +103,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             foreach (var xChainGenerator in XChainGenerators)
             {
                 xChainGenerator.Value.Consume();
-                files.Add((xChainGenerator.Key.ToString(), xChainGenerator.Value.ToString()));
+                files.Add(($"{xChainGenerator.Key}{xChainGenerator.Value.FileExtension}", xChainGenerator.Value.ToString()));
             }
 
             return files;

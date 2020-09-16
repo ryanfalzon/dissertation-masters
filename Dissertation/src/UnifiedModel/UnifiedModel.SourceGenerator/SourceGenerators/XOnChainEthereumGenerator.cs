@@ -11,7 +11,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
     {
         public XOnChainEthereumGenerator() : base()
         {
-
+            FileExtension = ".sol";
         }
 
         public override string AddClass(Modifiers modifier, string name, bool isModel, string parentHash)
@@ -71,7 +71,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
         {
             base.Consume();
 
-            var functions = Models.SelectMany(model => ((Contract)model).Functions);
+            var functions = Models.Where(model => model.GetType() == typeof(Contract)).SelectMany(model => ((Contract)model).Functions);
 
             foreach(var function in functions)
             {

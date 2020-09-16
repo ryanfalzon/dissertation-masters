@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnifiedModel.SourceGenerator.CommonModels;
+using UnifiedModel.SourceGenerator.Helpers;
 
 namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
 {
@@ -34,9 +35,15 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
 
         public override string ToString()
         {
-            return $"function {Name}() {Modifier} {{\n" +
-                $"{string.Join("\n", Expressions.Select(expression => expression.ToString()))}" +
-                $"}}";
+            Tools.IndentationLevel++;
+
+            var content = $"function {Name}({Parameters}) {Modifier} {{\n".Tabulate() +
+                $"{string.Join("\n", Expressions.Select(expression => expression.ToString()))}\n" +
+                $"}}".Tabulate();
+
+            Tools.IndentationLevel--;
+
+            return content;
         }
     }
 }

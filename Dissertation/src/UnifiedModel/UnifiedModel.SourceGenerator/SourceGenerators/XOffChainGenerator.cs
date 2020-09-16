@@ -9,9 +9,10 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 {
     public class XOffChainGenerator : XChainGenerator
     {
+
         public XOffChainGenerator() : base()
         {
-            
+            FileExtension = ".cs";
         }
 
         public override string AddClass(Modifiers modifier, string name, bool isModel, string parentHash)

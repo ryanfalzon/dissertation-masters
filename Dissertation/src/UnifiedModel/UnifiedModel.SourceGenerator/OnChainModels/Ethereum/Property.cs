@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+using System.Reflection.Metadata.Ecma335;
 using UnifiedModel.SourceGenerator.CommonModels;
+using UnifiedModel.SourceGenerator.Helpers;
 
 namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
 {
@@ -32,7 +34,13 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
 
         public override string ToString()
         {
-            return $"{Modifier} {Type} {Name};";
+            Tools.IndentationLevel++;
+
+            var content = $"{Modifier} {Type} {Name};".Tabulate();
+
+            Tools.IndentationLevel--;
+
+            return content;
         }
     }
 }
