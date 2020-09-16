@@ -8,7 +8,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
         string AddField(Modifiers modifier, Types type, string name, string parentHash);
 
-        string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parentHash);
+        string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parameterAnchor, string parentHash);
 
         string AddExpression(string statement, string parentHash);
 

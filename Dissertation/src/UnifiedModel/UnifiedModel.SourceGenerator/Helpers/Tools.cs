@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
+using UnifiedModel.SourceGenerator.CommonModels;
 using UnifiedModel.SourceGenerator.SourceGenerators;
 
 namespace UnifiedModel.SourceGenerator.Helpers
 {
     public static class Tools
     {
+        public static int IndentationLevel = 0;
+
         public static byte[] GetSha256Hash(byte[] data)
         {
             using SHA256 sha256Hash = SHA256.Create();
@@ -53,6 +57,30 @@ namespace UnifiedModel.SourceGenerator.Helpers
             {
                 throw new InvalidExpressionException("Invalid annotated code");
             }
+        }
+
+        public static string Tabulate(this string content)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            for(int i = 0; i < IndentationLevel; i++)
+            {
+                stringBuilder.Append("\t");
+            }
+
+            stringBuilder.Append(content);
+            return stringBuilder.ToString();
+        }
+
+        public static bool IsPrimitiveType(this string content)
+        {
+            var primitiveTypes = Enum.GetNames(typeof(Types)).ToList();
+            if (primitiveTypes.Contains(content.Split(' ').First()))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

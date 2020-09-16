@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using UnifiedModel.SourceGenerator.CommonModels;
+using UnifiedModel.SourceGenerator.Helpers;
 
 namespace UnifiedModel.SourceGenerator.OffChainModels
 {
@@ -24,7 +25,13 @@ namespace UnifiedModel.SourceGenerator.OffChainModels
 
         public override string ToString()
         {
-            return $"{Modifier} {Type} {Name} {{ get; set; }}\n";
+            Tools.IndentationLevel++;
+
+            var content = $"{Modifier} {Type} {Name} {{ get; set; }}\n".Tabulate();
+
+            Tools.IndentationLevel--;
+
+            return content;
         }
     }
 }

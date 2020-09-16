@@ -43,9 +43,9 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             return property.Hash;
         }
 
-        public override string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parentHash)
+        public override string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parameterAnchor, string parentHash)
         {
-            Function function = new Function(identifier, modifier, parentHash);
+            Function function = new Function(identifier, modifier, parameters, parameterAnchor, parentHash);
             function.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(function))));
             Memory.Add(function);
 
@@ -65,6 +65,24 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
         {
             Property property = (Property)Memory.Where(item => item.Hash.Equals(hash)).FirstOrDefault();
             return $"{property.Type} {property.Name}";
+        }
+
+        public override void Consume()
+        {
+            base.Consume();
+
+            var functions = Models.SelectMany(model => ((Contract)model).Functions);
+
+            foreach(var function in functions)
+            {
+                if (!string.IsNullOrEmpty(function.ParameterAnchor))
+                {
+                    foreach(var expression in function.Expressions)
+                    {
+                        expression.Statement = expression.Statement.Contains($"{function.ParameterAnchor}.") ? expression.Statement.Replace($"{function.ParameterAnchor}.", "") : expression.Statement;
+                    }
+                }
+            }
         }
     }
 }

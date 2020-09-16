@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnifiedModel.SourceGenerator.CommonModels;
+using UnifiedModel.SourceGenerator.Helpers;
 
 namespace UnifiedModel.SourceGenerator.OffChainModels
 {
@@ -19,25 +20,35 @@ namespace UnifiedModel.SourceGenerator.OffChainModels
         [JsonProperty("parameters")]
         public string Parameters { get; set; }
 
+        [JsonIgnore]
+        public string ParameterAnchor { get; set; }
+
         [JsonProperty("expressions")]
         public IEnumerable<Expression> Expressions { get; set; }
 
-        public Method(Modifiers modifier, string returnType, string identifier, string parameters, string parentHash)
+        public Method(Modifiers modifier, string returnType, string identifier, string parameters, string parameterAnchor, string parentHash)
         {
             Modifier = modifier;
             ReturnType = returnType;
             Identifier = identifier;
             Parameters = parameters;
+            ParameterAnchor = parameterAnchor;
             ParentHash = parentHash;
             Expressions = new List<Expression>();
         }
 
         public override string ToString()
         {
-            return $"{Modifier} {ReturnType} {Identifier} ({Parameters})\n" +
-                $"{{\n" +
+            Tools.IndentationLevel++;
+
+            var content = $"{Modifier} {ReturnType} {Identifier} ({Parameters})\n".Tabulate() +
+                $"{{\n".Tabulate() +
                 $"{string.Join("\n", Expressions.Select(expression => expression.ToString()))}\n" +
-                $"}}";
+                $"}}".Tabulate();
+
+            Tools.IndentationLevel--;
+
+            return content;
         }
     }
 }

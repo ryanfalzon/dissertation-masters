@@ -32,9 +32,9 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             return field.Hash;
         }
 
-        public override string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parentHash)
+        public override string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parameterAnchor, string parentHash)
         {
-            Method method = new Method(modifier, returnType, identifier, parameters, parentHash);
+            Method method = new Method(modifier, returnType, identifier, parameters, parameterAnchor, parentHash);
             method.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(method))));
             Memory.Add(method);
 

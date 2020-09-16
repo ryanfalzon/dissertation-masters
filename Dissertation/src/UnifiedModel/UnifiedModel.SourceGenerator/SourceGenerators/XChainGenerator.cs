@@ -24,7 +24,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
         public abstract string AddField(Modifiers modifier, Types type, string name, string parentHash);
 
-        public abstract string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parentHash);
+        public abstract string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parameterAnchor, string parentHash);
 
         public abstract string CreatePropertyArgument(string hash);
 
@@ -33,7 +33,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             return $"{string.Join("\n", Models.Select(@class => @class.ToString()))}";
         }
 
-        public void Consume()
+        public virtual void Consume()
         {
             var models = Memory.Where(item => item.ParentHash.Equals(string.Empty));
 

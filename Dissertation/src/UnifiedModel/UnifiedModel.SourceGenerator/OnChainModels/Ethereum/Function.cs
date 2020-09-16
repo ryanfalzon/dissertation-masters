@@ -16,13 +16,18 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
         [JsonProperty("parameters")]
         public string Parameters { get; set; }
 
+        [JsonIgnore]
+        public string ParameterAnchor { get; set; }
+
         [JsonProperty("expressions")]
         public IEnumerable<Expression> Expressions { get; set; }
 
-        public Function(string name, Modifiers modifier, string parentHash)
+        public Function(string name, Modifiers modifier, string parameters, string parameterAnchor, string parentHash)
         {
             Name = name;
             Modifier = modifier;
+            Parameters = parameters;
+            ParameterAnchor = parameterAnchor;
             ParentHash = parentHash;
             Expressions = new List<Expression>();
         }

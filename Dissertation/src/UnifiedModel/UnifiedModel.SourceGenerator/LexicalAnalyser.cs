@@ -126,7 +126,7 @@ namespace UnifiedModel.SourceGenerator
                             var methodHashes = Generator.Get(attribute).Select(generator =>
                             {
                                 var key = generator.GetEnumeratedType();
-                                var value = generator.AddMethod(modifier, returnType, identifier, parameters, parentHashes == null ? string.Empty : parentHashes[key]); ;
+                                var value = generator.AddMethod(modifier, returnType, identifier, parameters, string.Empty, parentHashes == null ? string.Empty : parentHashes[key]); ;
                                 return new KeyValuePair<XChains, string>(key, value);
                             }).ToDictionary(x => x.Key, x => x.Value);
 
@@ -148,8 +148,8 @@ namespace UnifiedModel.SourceGenerator
 
                                         foreach (var argument in argumentList)
                                         {
-                                            var argumentType = mainMethodParameters.Where(parameter => parameter.Contains(argument)).First().Split(' ')[0];
-                                            parameterList.AddRange(GetOnChainModelParameters(blockAttribute, argumentType));
+                                            var mainMethodParameter = mainMethodParameters.Where(parameter => parameter.Contains(argument)).First().Split(' ');
+                                            parameterList.AddRange(GetOnChainModelParameters(blockAttribute, mainMethodParameter.First(), mainMethodParameter.Last()));
                                         }
                                         var xCallParameters = string.Join(", ", parameterList.Select(parameter => parameter.ToString()));
                                         var xCallArguments = string.Join(", ", parameterList.Select(parameter => parameter.Split(' ').Last()));
@@ -157,7 +157,7 @@ namespace UnifiedModel.SourceGenerator
                                         var memberHashes = Generator.Get(Constants.XOnChain, blockAttribute).Select(generator =>
                                         {
                                             var key = generator.GetEnumeratedType();
-                                            var value = generator.AddMethod(Modifiers.@public, returnType, identifier, xCallParameters, parentHashes == null ? string.Empty : parentHashes[key]);
+                                            var value = generator.AddMethod(Modifiers.@public, returnType, identifier, xCallParameters, parameters, parentHashes == null ? string.Empty : parentHashes[key]);
                                             return new KeyValuePair<XChains, string>(key, value);
                                         }).ToDictionary(x => x.Key, x => x.Value);
 
@@ -224,7 +224,7 @@ namespace UnifiedModel.SourceGenerator
             }
         }
 
-        private List<string> GetOnChainModelParameters(string targetChain, string modelName)
+        private List<string> GetOnChainModelParameters(string targetChain, string modelType, string modelName)
         {
             var xChain = targetChain switch
             {
@@ -232,7 +232,15 @@ namespace UnifiedModel.SourceGenerator
                 _ => throw new InvalidEnumArgumentException("Invalid XChain token!"),
             };
 
-            return Models[modelName]
+            if (modelType.IsPrimitiveType())
+            {
+                return new List<string>()
+                {
+                    $"{modelType} {modelName}"
+                };
+            }
+
+            return Models[modelType]
                 .Where(model => model.Location == xChain)
                 .Select(model => Generator.Get(Constants.XOnChain, targetChain).First().CreatePropertyArgument(model.Hash))
                 .ToList();
