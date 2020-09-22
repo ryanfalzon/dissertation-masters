@@ -18,3 +18,5 @@
 /Dissertation/src/UseCase/UseCase.Database/UseCase.Database.jfm
 /Dissertation/src/UseCase/UseCase.Database/UseCase.Database.dbmdl
 /Dissertation/src/UnifiedModel/UnifiedModel.SourceGenerator/obj
+/Dissertation/src/UnifiedModel/UnifiedModel.Connectors/bin/Debug/netcoreapp3.1
+/Dissertation/src/UnifiedModel/UnifiedModel.Connectors/obj
