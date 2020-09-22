@@ -6,13 +6,13 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
     {
         string FileExtension { get; set; }
 
-        string AddClass(Modifiers modifier, string name, bool isModel, string parentHash);
+        string AddClass(ClassDetails classDetails, string parentHash);
 
-        string AddField(Modifiers modifier, Types type, string name, string parentHash);
+        string AddField(FieldDetails fieldDetails, string parentHash);
 
-        string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parameterAnchor, string parentHash);
+        string AddMethod(MethodDetails methodDetails, string parentHash);
 
-        string AddExpression(string statement, string parentHash);
+        string AddExpression(ExpressionDetails expressionDetails, string parentHash);
 
         string CreatePropertyArgument(string hash);
 

@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.VisualBasic;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnifiedModel.SourceGenerator.CommonModels;
@@ -14,11 +16,11 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             FileExtension = ".sol";
         }
 
-        public override string AddClass(Modifiers modifier, string name, bool isModel, string parentHash)
+        public override string AddClass(ClassDetails classDetails, string parentHash)
         {
-            if (isModel)
+            if (classDetails.IsModel)
             {
-                Struct @struct = new Struct(name, parentHash);
+                Struct @struct = new Struct(classDetails.Name, new ModelProperties(classDetails.IsModel, classDetails.ModelLocation), parentHash);
                 @struct.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@struct))));
                 Memory.Add(@struct);
 
@@ -26,7 +28,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             }
             else
             {
-                Contract contract = new Contract(name, parentHash);
+                Contract contract = new Contract(classDetails.Name, parentHash);
                 contract.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(contract))));
                 Memory.Add(contract);
 
@@ -34,27 +36,27 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             }
         }
 
-        public override string AddField(Modifiers modifier, Types type, string name, string parentHash)
+        public override string AddField(FieldDetails fieldDetails, string parentHash)
         {
-            Property property = new Property(modifier, type, name, parentHash);
+            Property property = new Property(fieldDetails.Type, fieldDetails.Name, parentHash);
             property.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(property))));
             Memory.Add(property);
 
             return property.Hash;
         }
 
-        public override string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parameterAnchor, string parentHash)
+        public override string AddMethod(MethodDetails methodDetails, string parentHash)
         {
-            Function function = new Function(identifier, modifier, parameters, parameterAnchor, parentHash);
+            Function function = new Function(methodDetails.Identifier, methodDetails.Modifier, methodDetails.Parameters, methodDetails.ParameterAnchor, parentHash);
             function.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(function))));
             Memory.Add(function);
 
             return function.Hash;
         }
 
-        public override string AddExpression(string statement, string parentHash)
+        public override string AddExpression(ExpressionDetails expressionDetails, string parentHash)
         {
-            Expression expression = new Expression(statement, parentHash);
+            Expression expression = new Expression(expressionDetails.Statement, parentHash);
             expression.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(expression))));
             Memory.Add(expression);
 
@@ -69,15 +71,21 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
         public override void Consume()
         {
+            Memory.Where(model => model.GetType() == typeof(Struct)).ToList().ForEach(@struct =>
+            {
+                var parsedStruct = (Struct)@struct;
+                @struct.ParentHash = Memory.Where(model => model.GetType() == typeof(Contract) && ((Contract)model).Name.Equals(parsedStruct.ModelProperties.Location)).FirstOrDefault()?.Hash;
+            });
+
             base.Consume();
 
             var functions = Models.Where(model => model.GetType() == typeof(Contract)).SelectMany(model => ((Contract)model).Functions);
 
-            foreach(var function in functions)
+            foreach (var function in functions)
             {
                 if (!string.IsNullOrEmpty(function.ParameterAnchor))
                 {
-                    foreach(var expression in function.Expressions)
+                    foreach (var expression in function.Expressions)
                     {
                         expression.Statement = expression.Statement.Contains($"{function.ParameterAnchor}.") ? expression.Statement.Replace($"{function.ParameterAnchor}.", "") : expression.Statement;
                     }

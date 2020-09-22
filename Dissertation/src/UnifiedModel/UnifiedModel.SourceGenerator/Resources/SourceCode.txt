@@ -1,5 +1,5 @@
 [XAll()]
-public class User : XModel
+public class User : XModel("SocialNetwork")
 {
 	[XOffChain()]
 	public int Id;
@@ -29,21 +29,19 @@ public class User : XModel
 [XAll()]
 public class SocialNetwork
 {
-	[XOnChain("Ethereum")]
-	public const int FEE = 1;
+	public void Register(User user)
+	{
+		@XOffChain(user)
+		{
+			Assert(user.IsNotNull());
+			user.Hash = BlockchainTools.Hash(user);
+		}
 
-	[XOffChain()]
-	public void CreateProfile(User user){
-		Assert(user.IsNotNull());
-
-		user.Hash = BlockchainTools.Hash(user);
 		@XOnChain("Ethereum", user)
 		{
 			Assert(Tx.user.balance >= FEE);
 			Store(user);
 			Tx.user.balance -= FEE;
 		}
-		
-		Store(profile);
 	}
 }

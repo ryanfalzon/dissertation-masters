@@ -20,13 +20,13 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             Memory = new List<ChainModel>();
         }
 
-        public abstract string AddClass(Modifiers modifier, string name, bool isModel, string parentHash);
+        public abstract string AddClass(ClassDetails classDetails, string parentHash);
 
-        public abstract string AddExpression(string statement, string parentHash);
+        public abstract string AddField(FieldDetails fieldDetails, string parentHash);
 
-        public abstract string AddField(Modifiers modifier, Types type, string name, string parentHash);
+        public abstract string AddMethod(MethodDetails methodDetails, string parentHash);
 
-        public abstract string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parameterAnchor, string parentHash);
+        public abstract string AddExpression(ExpressionDetails expressionDetails, string parentHash);
 
         public abstract string CreatePropertyArgument(string hash);
 

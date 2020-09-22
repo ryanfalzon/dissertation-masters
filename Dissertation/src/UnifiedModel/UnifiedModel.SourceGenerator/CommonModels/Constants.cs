@@ -14,6 +14,10 @@
 
         public const string XOnChainRegex = "@XOnChain\\(\"[a-zA-Z]+\"(,{1} +[a-zA-Z]+)*\\)";
 
+        public const string XOffChainRegex = "@XOffChain\\([a-zA-Z]+(,{1} +[a-zA-Z]+)*\\)";
+
         public const string XCallExpression = "XCall(\"{0}\", \"{1}\", {2})";
+
+        public const string XModelRegex = "XModel\\(\"[a-zA-Z]+\"(,{1} +[a-zA-Z]+)*\\)";
     }
 }

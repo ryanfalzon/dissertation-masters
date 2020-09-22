@@ -11,6 +11,9 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        [JsonProperty("structs")]
+        public IEnumerable<Struct> Structs { get; set; }
+
         [JsonProperty("properties")]
         public IEnumerable<Property> Properties { get; set; }
 
@@ -21,6 +24,7 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
         {
             Name = name;
             ParentHash = parentHash;
+            Structs = new List<Struct>();
             Properties = new List<Property>();
             Functions = new List<Function>();
         }
@@ -31,6 +35,7 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
 
             var content = $"pragma solidity >=0.4.22 <0.7.0;\n".Tabulate() +
                 $"contract {Name}{{\n".Tabulate() +
+                $"{string.Join("\n", Structs.Select(@struct => @struct.ToString()))}\n" +
                 $"{string.Join("\n", Properties.Select(property => property.ToString()))}\n" +
                 $"{string.Join("\n", Functions.Select(function => function.ToString()))}\n" +
                 $"}}".Tabulate();

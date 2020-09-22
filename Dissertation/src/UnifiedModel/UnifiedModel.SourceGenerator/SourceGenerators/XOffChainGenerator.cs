@@ -15,36 +15,36 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             FileExtension = ".cs";
         }
 
-        public override string AddClass(Modifiers modifier, string name, bool isModel, string parentHash)
+        public override string AddClass(ClassDetails classDetails, string parentHash)
         {
-            Class @class = new Class(modifier, name, isModel, parentHash);
+            Class @class = new Class(classDetails.Modifier, classDetails.Name, new ModelProperties(classDetails.IsModel, classDetails.ModelLocation), parentHash);
             @class.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@class))));
             Memory.Add(@class);
 
             return @class.Hash;
         }
 
-        public override string AddField(Modifiers modifier, Types type, string name, string parentHash)
+        public override string AddField(FieldDetails fieldDetails, string parentHash)
         {
-            Field field = new Field(modifier, type, name, parentHash);
+            Field field = new Field(fieldDetails.Modifier, fieldDetails.Type, fieldDetails.Name, parentHash);
             field.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(field))));
             Memory.Add(field);
 
             return field.Hash;
         }
 
-        public override string AddMethod(Modifiers modifier, string returnType, string identifier, string parameters, string parameterAnchor, string parentHash)
+        public override string AddMethod(MethodDetails methodDetails, string parentHash)
         {
-            Method method = new Method(modifier, returnType, identifier, parameters, parameterAnchor, parentHash);
+            Method method = new Method(methodDetails.Modifier, methodDetails.ReturnType, methodDetails.Identifier, methodDetails.Parameters, methodDetails.ParameterAnchor, parentHash);
             method.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(method))));
             Memory.Add(method);
 
             return method.Hash;
         }
 
-        public override string AddExpression(string statement, string parentHash)
+        public override string AddExpression(ExpressionDetails expressionDetails, string parentHash)
         {
-            Expression expression = new Expression(statement, parentHash);
+            Expression expression = new Expression(expressionDetails.Statement, parentHash);
             expression.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(expression))));
             Memory.Add(expression);
 
