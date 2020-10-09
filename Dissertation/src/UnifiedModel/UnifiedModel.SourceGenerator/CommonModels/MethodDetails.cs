@@ -1,4 +1,6 @@
-﻿namespace UnifiedModel.SourceGenerator.CommonModels
+﻿using System.Collections.Generic;
+
+namespace UnifiedModel.SourceGenerator.CommonModels
 {
     public class MethodDetails : NodeDetails
     {
@@ -11,5 +13,9 @@
         public string Parameters { get; set; }
 
         public string ParameterAnchor { get; set; }
+
+        public bool IsAsynchronous { get; set; }
+
+        public List<string> Arguments { get; set; }
     }
 }

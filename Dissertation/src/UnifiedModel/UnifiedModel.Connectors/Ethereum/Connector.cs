@@ -13,6 +13,7 @@ namespace UnifiedModel.Connectors.Ethereum
 
         public Connector(string publicKey, string privateKey)
         {
+            this.publicKey = publicKey;
             web3 = new Web3(new Account(privateKey));
         }
 

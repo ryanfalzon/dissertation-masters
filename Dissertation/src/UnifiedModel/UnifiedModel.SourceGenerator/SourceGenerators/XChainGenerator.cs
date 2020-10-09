@@ -26,6 +26,8 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
         public abstract string AddMethod(MethodDetails methodDetails, string parentHash);
 
+        public abstract void AddMethodParameters(MethodDetails methodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters, string lastKnownBlockHash);
+
         public abstract string AddExpression(ExpressionDetails expressionDetails, string parentHash);
 
         public abstract string CreatePropertyArgument(string hash);

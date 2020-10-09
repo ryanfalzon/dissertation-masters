@@ -1,4 +1,6 @@
-﻿using UnifiedModel.SourceGenerator.CommonModels;
+﻿using System;
+using System.Collections.Generic;
+using UnifiedModel.SourceGenerator.CommonModels;
 
 namespace UnifiedModel.SourceGenerator.SourceGenerators
 {
@@ -11,6 +13,8 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
         string AddField(FieldDetails fieldDetails, string parentHash);
 
         string AddMethod(MethodDetails methodDetails, string parentHash);
+
+        void AddMethodParameters(MethodDetails methodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters, string lastKnownBlockHash);
 
         string AddExpression(ExpressionDetails expressionDetails, string parentHash);
 

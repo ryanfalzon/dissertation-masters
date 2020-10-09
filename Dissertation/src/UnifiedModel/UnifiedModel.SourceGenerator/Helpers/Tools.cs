@@ -45,13 +45,13 @@ namespace UnifiedModel.SourceGenerator.Helpers
 
         public static XChains GetEnumeratedType(this IXChainGenerator generator)
         {
-            if (generator.GetType() == typeof(XOffChainGenerator))
+            if (generator.GetType() == typeof(XOffChainDesktopGenerator))
             {
-                return XChains.OffChain;
+                return XChains.Desktop;
             }
             else if (generator.GetType() == typeof(XOnChainEthereumGenerator))
             {
-                return XChains.EthereumChain;
+                return XChains.Ethereum;
             }
             else
             {

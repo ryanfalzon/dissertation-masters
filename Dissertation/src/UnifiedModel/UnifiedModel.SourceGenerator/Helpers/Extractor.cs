@@ -36,8 +36,8 @@ namespace UnifiedModel.SourceGenerator.Helpers
             Enum.TryParse(fieldDeclarationSyntax.Modifiers.First().ValueText, out Modifiers modifier);
             Enum.TryParse(fieldDeclarationSyntax.Declaration.Type.ToString(), out Types type);
             var name = fieldDeclarationSyntax.Declaration.Variables.ToString();
-            var attribute = fieldDeclarationSyntax.AttributeLists[0].Attributes[0].Name.ToString();
-            var attributeArgument = fieldDeclarationSyntax.AttributeLists.FirstOrDefault()?.Attributes.FirstOrDefault()?.ArgumentList.Arguments.FirstOrDefault()?.ToString();
+            var attribute = fieldDeclarationSyntax.AttributeLists.Count == 0 ? string.Empty : fieldDeclarationSyntax.AttributeLists[0].Attributes[0].Name.ToString();
+            var attributeArgument = fieldDeclarationSyntax.AttributeLists.Count == 0 ? string.Empty : fieldDeclarationSyntax.AttributeLists.FirstOrDefault()?.Attributes.FirstOrDefault()?.ArgumentList.Arguments.FirstOrDefault()?.ToString();
 
             return new FieldDetails()
             {

@@ -28,7 +28,7 @@ namespace UnifiedModel.Connectors
         {
             if (!assertion)
             {
-                throw new InvalidDataException("Null values passed as parameters...");
+                throw new InvalidDataException("Assertion failed...");
             }
         }
 

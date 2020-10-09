@@ -1,47 +1,81 @@
 [XAll()]
 public class User : XModel("SocialNetwork")
 {
-	[XOffChain()]
+	[XOn("Desktop")]
 	public int Id;
 	
-	[XOnChain("Ethereum")]
+	[XOn("Ethereum")]
 	public string PublicKey;
 	
-	[XOnChain("Ethereum")]
+	[XOn("Ethereum")]
 	public string Hash;
 	
-	[XOffChain()]
+	[XOn("Desktop")]
 	public string FirstName;
 	
-	[XOffChain()]
+	[XOn("Desktop")]
 	public string LastName;
 	
-	[XOffChain()]
+	[XOn("Desktop")]
 	public string Email;
 	
-	[XOffChain()]
+	[XOn("Desktop")]
 	public int Mobile;
 	
-	[XOffChain()]
+	[XOn("Desktop")]
 	public string Description;
+}
+
+[XAll()]
+public class Post : XModel("SocialNetwork")
+{
+	[XOn("Desktop")]
+	public int Id;
+
+	[XOn("Ethereum")]
+	public string Hash;
+
+	[XOn("Desktop")]
+	public string Content;
 }
 
 [XAll()]
 public class SocialNetwork
 {
+	[XOn("Ethereum")]
+	public int Fee = 1;
+
+	public int TestFee = 2;
+
 	public void Register(User user)
 	{
-		@XOffChain(user)
+		@XOn("Desktop", user)
 		{
 			Assert(user.IsNotNull());
 			user.Hash = BlockchainTools.Hash(user);
 		}
 
-		@XOnChain("Ethereum", user)
+		Assert(user.IsNotNull());
+
+		~@XOn("Ethereum", user)
 		{
 			Assert(Tx.user.balance >= FEE);
 			Store(user);
 			Tx.user.balance -= FEE;
+		}
+	}
+
+	public void AddPost(Post post)
+	{
+		@XOn("Desktop", post)
+		{
+			Assert(post.IsNotNull);
+			post.Hash = BlockchainTools.Hash(post);
+		}
+
+		~@XOn("Ethereum", post)
+		{
+			Store(post);
 		}
 	}
 }

@@ -1,16 +1,18 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnifiedModel.SourceGenerator.CommonModels;
 using UnifiedModel.SourceGenerator.Helpers;
-using UnifiedModel.SourceGenerator.OffChainModels;
+using UnifiedModel.SourceGenerator.OffChainModels.Desktop;
 
 namespace UnifiedModel.SourceGenerator.SourceGenerators
 {
-    public class XOffChainGenerator : XChainGenerator
+    public class XOffChainDesktopGenerator : XChainGenerator
     {
 
-        public XOffChainGenerator() : base()
+        public XOffChainDesktopGenerator() : base()
         {
             FileExtension = ".cs";
         }
@@ -55,6 +57,11 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
         {
             Field field = (Field)Memory.Where(item => item.Hash.Equals(hash)).FirstOrDefault();
             return $"{field.Type} {field.Name}";
+        }
+
+        public override void AddMethodParameters(MethodDetails methodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters, string lastKnownBlockHash)
+        {
+            return;
         }
     }
 }

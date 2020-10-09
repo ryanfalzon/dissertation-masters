@@ -38,7 +38,7 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
             Tools.IndentationLevel++;
 
             var content = $"function {Name}({Parameters}) {Modifier} {{\n".Tabulate() +
-                $"{string.Join("\n", Expressions.Select(expression => expression.ToString()))}" +
+                $"{string.Join("\n", Expressions.Select(expression => expression.ToString()))}\n" +
                 $"}}".Tabulate();
 
             Tools.IndentationLevel--;

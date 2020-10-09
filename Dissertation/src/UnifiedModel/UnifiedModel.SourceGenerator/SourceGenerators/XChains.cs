@@ -2,10 +2,10 @@
 {
     public enum XChains
     {
-        OffChain,
+        Desktop,
 
-        EthereumChain,
+        Ethereum,
 
-        NeoChain
+        Neo
     }
 }

@@ -1,20 +1,20 @@
-﻿namespace UnifiedModel.SourceGenerator.CommonModels
+﻿using System.Data;
+
+namespace UnifiedModel.SourceGenerator.CommonModels
 {
     public static class Constants
     {
-        public const string XOffChain = "XOffChain";
-
-        public const string XOnChain = "XOnChain";
+        public const string XOn = "XOn";
 
         public const string XAll = "XAll";
 
         public const string XModel = "XModel";
 
+        public const string XOnDesktop = "Desktop";
+
         public const string XOnEthereumChain = "Ethereum";
 
-        public const string XOnChainRegex = "@XOnChain\\(\"[a-zA-Z]+\"(,{1} +[a-zA-Z]+)*\\)";
-
-        public const string XOffChainRegex = "@XOffChain\\([a-zA-Z]+(,{1} +[a-zA-Z]+)*\\)";
+        public const string XOnRegex = "@XOn\\(\"[a-zA-Z]+\"(,{1} +[a-zA-Z]+)*\\)";
 
         public const string XCallExpression = "XCall(\"{0}\", \"{1}\", {2})";
 

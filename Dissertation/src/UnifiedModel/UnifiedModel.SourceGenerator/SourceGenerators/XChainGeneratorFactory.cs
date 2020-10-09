@@ -5,22 +5,17 @@ using UnifiedModel.SourceGenerator.CommonModels;
 
 namespace UnifiedModel.SourceGenerator.SourceGenerators
 {
-    public class XChainGeneratorFactory
+    public static class XChainGeneratorFactory
     {
-        public Dictionary<XChains, IXChainGenerator> XChainGenerators { get; set; }
+        public static Dictionary<XChains, IXChainGenerator> XChainGenerators = new Dictionary<XChains, IXChainGenerator>();
 
-        public XChainGeneratorFactory()
+        public static List<IXChainGenerator> Get(string attribute, string argument = null)
         {
-            XChainGenerators = new Dictionary<XChains, IXChainGenerator>();
-        }
-
-        public List<IXChainGenerator> Get(string xChain, string xOnChain = null)
-        {
-            if (!string.IsNullOrEmpty(xChain))
+            if (!string.IsNullOrEmpty(attribute))
             {
                 var xChainGenerators = new List<IXChainGenerator>();
 
-                switch (xChain)
+                switch (attribute)
                 {
                     case Constants.XAll:
                         {
@@ -28,15 +23,15 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
                             {
                                 switch (currentXChain)
                                 {
-                                    case XChains.OffChain:
+                                    case XChains.Desktop:
                                         {
-                                            xChainGenerators.AddRange(Get(Constants.XOffChain));
+                                            xChainGenerators.AddRange(Get(Constants.XOn, Constants.XOnDesktop));
                                             break;
                                         }
 
-                                    case XChains.EthereumChain:
+                                    case XChains.Ethereum:
                                         {
-                                            xChainGenerators.AddRange(Get(Constants.XOnChain, Constants.XOnEthereumChain));
+                                            xChainGenerators.AddRange(Get(Constants.XOn, Constants.XOnEthereumChain));
                                             break;
                                         }
                                 }
@@ -44,29 +39,29 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
                             break;
                         }
 
-                    case Constants.XOffChain:
+                    case Constants.XOn:
                         {
-                            EnsureExists<XOffChainGenerator>(XChains.OffChain);
-                            xChainGenerators.Add(XChainGenerators[XChains.OffChain]);
-                            break;
-                        }
-
-                    case Constants.XOnChain:
-                        {
-                            if (!string.IsNullOrEmpty(xOnChain))
+                            if (!string.IsNullOrEmpty(argument))
                             {
-                                xOnChain = xOnChain.Contains("\"") ? xOnChain.Replace("\"", "") : xOnChain;
+                                argument = argument.Contains("\"") ? argument.Replace("\"", "") : argument;
 
-                                switch (xOnChain)
+                                switch (argument)
                                 {
-                                    case "Ethereum":
+                                    case Constants.XOnDesktop:
                                         {
-                                            EnsureExists<XOnChainEthereumGenerator>(XChains.EthereumChain);
-                                            xChainGenerators.Add(XChainGenerators[XChains.EthereumChain]);
+                                            EnsureExists<XOffChainDesktopGenerator>(XChains.Desktop);
+                                            xChainGenerators.Add(XChainGenerators[XChains.Desktop]);
                                             break;
                                         }
 
-                                    default: throw new InvalidEnumArgumentException("Invalid XOnChain token!");
+                                    case Constants.XOnEthereumChain:
+                                        {
+                                            EnsureExists<XOnChainEthereumGenerator>(XChains.Ethereum);
+                                            xChainGenerators.Add(XChainGenerators[XChains.Ethereum]);
+                                            break;
+                                        }
+
+                                    default: throw new InvalidEnumArgumentException("Invalid XChain token!");
                                 }
                             }
                             else
@@ -88,7 +83,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             }
         }
 
-        public void EnsureExists<T>(XChains xChain)
+        public static void EnsureExists<T>(XChains xChain)
         {
             if (!XChainGenerators.ContainsKey(xChain))
             {
@@ -96,7 +91,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             }
         }
 
-        public List<(string filename, string contents)> Consume()
+        public static List<(string filename, string contents)> Consume()
         {
             var files = new List<(string filename, string contents)>();
 

@@ -2,7 +2,7 @@
 using UnifiedModel.SourceGenerator.CommonModels;
 using UnifiedModel.SourceGenerator.Helpers;
 
-namespace UnifiedModel.SourceGenerator.OffChainModels
+namespace UnifiedModel.SourceGenerator.OffChainModels.Desktop
 {
     public class Expression : ChainModel
     {

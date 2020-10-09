@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using UnifiedModel.SourceGenerator.CommonModels;
 using UnifiedModel.SourceGenerator.Helpers;
 using UnifiedModel.SourceGenerator.SourceGenerators;
+using Generator = UnifiedModel.SourceGenerator.SourceGenerators.XChainGeneratorFactory;
 
 namespace UnifiedModel.SourceGenerator
 {
@@ -17,14 +18,12 @@ namespace UnifiedModel.SourceGenerator
     {
         private readonly string FileContent;
 
-        private readonly XChainGeneratorFactory Generator;
-
         private readonly Dictionary<string, List<ModelProperty>> Models;
+
 
         public LexicalAnalyser(string filePath)
         {
             FileContent = File.ReadAllText(filePath);
-            Generator = new XChainGeneratorFactory();
             Models = new Dictionary<string, List<ModelProperty>>();
         }
 
@@ -77,9 +76,15 @@ namespace UnifiedModel.SourceGenerator
                     {
                         FieldDeclarationSyntax fieldDeclarationSyntax = (FieldDeclarationSyntax)syntaxNode;
 
-                        if (previousNodeDetails != null && previousNodeDetails.GetType() == typeof(ClassDetails) && fieldDeclarationSyntax.AttributeLists.Count > 0)
+                        if (previousNodeDetails != null && previousNodeDetails.GetType() == typeof(ClassDetails))
                         {
                             var fieldDetails = fieldDeclarationSyntax.GetFieldDetails();
+                            if (fieldDetails.Attribute.Equals(string.Empty))
+                            {
+                                fieldDetails.Attribute = previousNodeDetails.Attribute;
+                                fieldDetails.AttributeArgument = previousNodeDetails.AttributeArgument;
+                            }
+
                             var fieldHashes = Generator.Get(fieldDetails.Attribute, fieldDetails.AttributeArgument).Select(generator =>
                             {
                                 var key = generator.GetEnumeratedType();
@@ -115,70 +120,45 @@ namespace UnifiedModel.SourceGenerator
                         if (previousNodeDetails != null && previousNodeDetails.GetType() == typeof(ClassDetails))
                         {
                             var methodDetails = methodDeclarationSyntax.GetMethodDetails();
+
+                            Dictionary<XChains, string> methodHashes = Generator.Get(string.IsNullOrEmpty(methodDetails.Attribute) ? previousNodeDetails.Attribute : methodDetails.Attribute, string.IsNullOrEmpty(methodDetails.Attribute) ? previousNodeDetails.AttributeArgument : methodDetails.AttributeArgument).Select(generator =>
+                            {
+                                var key = generator.GetEnumeratedType();
+                                var value = generator.AddMethod(methodDetails, previousNodeDetails.ParentHashes == null ? string.Empty : previousNodeDetails.ParentHashes[key]);
+                                return new KeyValuePair<XChains, string>(key, value);
+                            }).ToDictionary(x => x.Key, x => x.Value);
+
                             var statementQueue = new Queue<SyntaxNode>(methodDeclarationSyntax.Body.Statements);
                             string lastKnownBlockHash = string.Empty;
 
                             while (statementQueue.Count > 0)
                             {
                                 var member = statementQueue.Dequeue();
-                                if (statementQueue.Peek().Kind() == SyntaxKind.Block)
+                                if (statementQueue.Peek().Kind() == SyntaxKind.Block && Regex.IsMatch(member.ToString(), Constants.XOnRegex))
                                 {
-                                    if (Regex.IsMatch(member.ToString(), Constants.XOffChainRegex))
-                                    {
-                                        var methodHashes = Generator.Get(Constants.XOffChain).Select(generator =>
-                                        {
-                                            var key = generator.GetEnumeratedType();
-                                            var value = generator.AddMethod(methodDetails, previousNodeDetails.ParentHashes == null ? string.Empty : previousNodeDetails.ParentHashes[key]); ;
-                                            return new KeyValuePair<XChains, string>(key, value);
-                                        }).ToDictionary(x => x.Key, x => x.Value);
+                                    var onChainArguments = member.ToString().Split('(', ')')[1].Split(',').ToList();
+                                    var blockAttribute = onChainArguments.First().Contains("\"") ? onChainArguments.First().Replace("\"", "") : onChainArguments.First();
+                                    var argumentList = onChainArguments.Skip(1).ToList().Select(argument => argument.Trim()).ToList();
+                                    var isAsynchronous = member.ToString().StartsWith('~');
 
-                                        methodDetails.ParentHashes = methodHashes;
-                                        methodDetails.Attribute = Constants.XOffChain;
-                                        ProcessChild(statementQueue.Dequeue(), methodDetails);
+                                    methodDetails.Arguments = argumentList;
 
-                                        lastKnownBlockHash = methodHashes.First().Value;
-                                    }
-                                    else if (Regex.IsMatch(member.ToString(), Constants.XOnChainRegex) && !string.IsNullOrEmpty(lastKnownBlockHash))
-                                    {
-                                        var onChainArguments = member.ToString().Split('(', ')')[1].Split(',').ToList();
-                                        var blockAttribute = onChainArguments.First();
-                                        var argumentList = onChainArguments.Skip(1).ToList().Select(argument => argument.Trim());
-                                        var mainMethodParameters = methodDetails.Parameters.Split(',').Select(parameter => parameter.Trim());
+                                    methodDetails.IsAsynchronous = isAsynchronous;
+                                    methodDetails.ParentHashes = methodHashes.Where(methodHash => methodHash.Key.ToString() == blockAttribute).ToDictionary(methodHash => methodHash.Key, methodHash => methodHash.Value);
+                                    methodDetails.Attribute = Constants.XOn;
+                                    methodDetails.AttributeArgument = blockAttribute;
 
-                                        List<string> parameterList = new List<string>();
-                                        blockAttribute = blockAttribute.Contains("\"") ? blockAttribute.Replace("\"", "") : blockAttribute;
+                                    Generator.Get(Constants.XOn, blockAttribute).ForEach(generator => generator.AddMethodParameters(methodDetails, methodHashes.Where(methodHash => methodHash.Key.ToString() == blockAttribute).First().Value, GetModelParameters, lastKnownBlockHash));
 
-                                        foreach (var argument in argumentList)
-                                        {
-                                            var mainMethodParameter = mainMethodParameters.Where(parameter => parameter.Contains(argument)).First().Split(' ');
-                                            parameterList.AddRange(GetOnChainModelParameters(blockAttribute, mainMethodParameter.First(), mainMethodParameter.Last()));
-                                        }
-                                        var xCallParameters = string.Join(", ", parameterList.Select(parameter => parameter.ToString()));
-                                        var xCallArguments = string.Join(", ", parameterList.Select(parameter => parameter.Split(' ').Last()));
+                                    ProcessChild(statementQueue.Dequeue(), methodDetails);
 
-                                        var methodHashes = Generator.Get(Constants.XOnChain, blockAttribute).Select(generator =>
-                                        {
-                                            var key = generator.GetEnumeratedType();
-                                            var value = generator.AddMethod(methodDetails.GenerateOnChainMethodDetails(xCallParameters), previousNodeDetails.ParentHashes == null ? string.Empty : previousNodeDetails.ParentHashes[key]); ;
-                                            return new KeyValuePair<XChains, string>(key, value);
-                                        }).ToDictionary(x => x.Key, x => x.Value);
-
-                                        methodDetails.ParentHashes = methodHashes;
-                                        methodDetails.Attribute = Constants.XOnChain;
-                                        methodDetails.AttributeArgument = blockAttribute;
-                                        ProcessChild(statementQueue.Dequeue(), methodDetails);
-
-                                        Generator.Get(Constants.XOffChain).ForEach(generator =>
-                                        {
-                                            generator.AddExpression(new ExpressionDetails()
-                                            {
-                                                Statement = string.Format(Constants.XCallExpression, blockAttribute, methodDetails.Identifier, xCallArguments)
-                                            }, lastKnownBlockHash);
-                                        });
-                                    }
+                                    lastKnownBlockHash = blockAttribute.Equals(Constants.XOnDesktop) ? methodHashes.First().Value : string.Empty;
                                 }
                                 else
                                 {
+                                    methodDetails.ParentHashes = methodHashes;
+                                    methodDetails.Attribute = previousNodeDetails.Attribute;
+                                    methodDetails.AttributeArgument = previousNodeDetails.AttributeArgument;
                                     ProcessChild(member, methodDetails);
                                 }
                             }
@@ -244,11 +224,11 @@ namespace UnifiedModel.SourceGenerator
             }
         }
 
-        private List<string> GetOnChainModelParameters(string targetChain, string modelType, string modelName)
+        private List<string> GetModelParameters(string targetChain, string modelType, string modelName)
         {
             var xChain = targetChain switch
             {
-                Constants.XOnEthereumChain => XChains.EthereumChain,
+                Constants.XOnEthereumChain => XChains.Ethereum,
                 _ => throw new InvalidEnumArgumentException("Invalid XChain token!"),
             };
 
@@ -262,7 +242,7 @@ namespace UnifiedModel.SourceGenerator
 
             return Models[modelType]
                 .Where(model => model.Location == xChain)
-                .Select(model => Generator.Get(Constants.XOnChain, targetChain).First().CreatePropertyArgument(model.Hash))
+                .Select(model => Generator.Get(Constants.XOn, targetChain).First().CreatePropertyArgument(model.Hash))
                 .ToList();
         }
     }
