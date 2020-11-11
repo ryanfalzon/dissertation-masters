@@ -36,8 +36,19 @@ namespace UnifiedModel.SourceGenerator.Helpers
             Enum.TryParse(fieldDeclarationSyntax.Modifiers.First().ValueText, out Modifiers modifier);
             Enum.TryParse(fieldDeclarationSyntax.Declaration.Type.ToString(), out Types type);
             var name = fieldDeclarationSyntax.Declaration.Variables.ToString();
-            var attribute = fieldDeclarationSyntax.AttributeLists.Count == 0 ? string.Empty : fieldDeclarationSyntax.AttributeLists[0].Attributes[0].Name.ToString();
-            var attributeArgument = fieldDeclarationSyntax.AttributeLists.Count == 0 ? string.Empty : fieldDeclarationSyntax.AttributeLists.FirstOrDefault()?.Attributes.FirstOrDefault()?.ArgumentList.Arguments.FirstOrDefault()?.ToString();
+
+            var isParameter = true;
+            var attribute = string.Empty;
+            var attributeArgument = string.Empty;
+            if (fieldDeclarationSyntax.AttributeLists.Count == 1 && fieldDeclarationSyntax.AttributeLists[0].Attributes[0].Name.ToString().Equals(Constants.NotParameter))
+            {
+                isParameter = false;
+            }
+            else
+            {
+                attribute = fieldDeclarationSyntax.AttributeLists.Count == 0 ? string.Empty : fieldDeclarationSyntax.AttributeLists[0].Attributes[0].Name.ToString();
+                attributeArgument = fieldDeclarationSyntax.AttributeLists.Count == 0 ? string.Empty : fieldDeclarationSyntax.AttributeLists.FirstOrDefault()?.Attributes.FirstOrDefault()?.ArgumentList.Arguments.FirstOrDefault()?.ToString();
+            }
 
             return new FieldDetails()
             {
@@ -45,7 +56,8 @@ namespace UnifiedModel.SourceGenerator.Helpers
                 Type = type,
                 Name = name,
                 Attribute = attribute,
-                AttributeArgument = attributeArgument
+                AttributeArgument = attributeArgument,
+                IsParameter = isParameter
             };
         }
 

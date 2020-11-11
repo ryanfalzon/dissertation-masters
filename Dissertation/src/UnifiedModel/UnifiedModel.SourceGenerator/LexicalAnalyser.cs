@@ -97,11 +97,14 @@ namespace UnifiedModel.SourceGenerator
                             {
                                 foreach (var fieldHash in fieldHashes)
                                 {
-                                    Models[parsedPreviousNodeDetails.Name].Add(new ModelProperty
+                                    if(fieldDetails.IsParameter)
                                     {
-                                        Location = fieldHash.Key,
-                                        Hash = fieldHash.Value
-                                    });
+                                        Models[parsedPreviousNodeDetails.Name].Add(new ModelProperty
+                                        {
+                                            Location = fieldHash.Key,
+                                            Hash = fieldHash.Value
+                                        });
+                                    }
                                 }
                             }
                         }

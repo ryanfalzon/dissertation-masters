@@ -4,6 +4,8 @@ namespace UnifiedModel.SourceGenerator.CommonModels
 {
     public static class Constants
     {
+        public const string NotParameter = "NotParameter";
+
         public const string XOn = "XOn";
 
         public const string XAll = "XAll";
