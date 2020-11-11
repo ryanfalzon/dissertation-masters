@@ -6,7 +6,6 @@ using System.Text;
 using UnifiedModel.SourceGenerator.CommonModels;
 using UnifiedModel.SourceGenerator.Helpers;
 using UnifiedModel.SourceGenerator.OnChainModels.Ethereum;
-using Generator = UnifiedModel.SourceGenerator.SourceGenerators.XChainGeneratorFactory;
 
 namespace UnifiedModel.SourceGenerator.SourceGenerators
 {
@@ -46,6 +45,15 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             return property.Hash;
         }
 
+        public override string AddConstructor(ConstructorDetails constructorDetails, string parentHash)
+        {
+            Constructor constructor = new Constructor(constructorDetails.Modifier, constructorDetails.Parameters, constructorDetails.ParameterAnchor, parentHash);
+            constructor.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(constructor))));
+            Memory.Add(constructor);
+
+            return constructor.Hash;
+        }
+
         public override string AddMethod(MethodDetails methodDetails, string parentHash)
         {
             Function function = new Function(methodDetails.Identifier, methodDetails.Modifier, string.Empty, methodDetails.Parameters, parentHash);
@@ -55,12 +63,12 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             return function.Hash;
         }
 
-        public override void AddMethodParameters(MethodDetails methodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters, string lastKnownBlockHash)
+        public override string AddMethodParameters(BaseMethodDetails baseMethodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters)
         {
-            var mainMethodParameters = methodDetails.Parameters.Split(',').Select(parameter => parameter.Trim());
+            var mainMethodParameters = baseMethodDetails.Parameters.Split(',').Select(parameter => parameter.Trim());
 
             List<string> parameterList = new List<string>();
-            foreach (var argument in methodDetails.Arguments)
+            foreach (var argument in baseMethodDetails.Arguments)
             {
                 var mainMethodParameter = mainMethodParameters.Where(parameter => parameter.Contains(argument)).First().Split(' ');
                 parameterList.AddRange(generateParameters(Constants.XOnEthereumChain, mainMethodParameter.First(), mainMethodParameter.Last()));
@@ -77,13 +85,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
                 }
             });
 
-            Generator.Get(Constants.XOn, Constants.XOnDesktop).ForEach(generator =>
-            {
-                generator.AddExpression(new ExpressionDetails()
-                {
-                    Statement = (methodDetails.IsAsynchronous ? "await " : string.Empty) + string.Format(Constants.XCallExpression, Constants.XOnEthereumChain, methodDetails.Identifier, xCallArguments)
-                }, lastKnownBlockHash);
-            });
+            return xCallArguments;
         }
 
         public override string AddExpression(ExpressionDetails expressionDetails, string parentHash)

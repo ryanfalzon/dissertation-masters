@@ -35,10 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Resources\SourceCode.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -24,9 +24,11 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
         public abstract string AddField(FieldDetails fieldDetails, string parentHash);
 
+        public abstract string AddConstructor(ConstructorDetails constructorDetails, string parentHash);
+
         public abstract string AddMethod(MethodDetails methodDetails, string parentHash);
 
-        public abstract void AddMethodParameters(MethodDetails methodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters, string lastKnownBlockHash);
+        public abstract string AddMethodParameters(BaseMethodDetails baseMethodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters);
 
         public abstract string AddExpression(ExpressionDetails expressionDetails, string parentHash);
 

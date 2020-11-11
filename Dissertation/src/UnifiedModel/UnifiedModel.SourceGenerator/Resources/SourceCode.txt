@@ -1,81 +1,127 @@
-[XAll()]
-public class User : XModel("SocialNetwork")
+[XOn("Desktop")]
+public class Profile : XModel("SocialNetwork")
 {
-	[XOn("Desktop")]
-	public int Id;
-	
-	[XOn("Ethereum")]
-	public string PublicKey;
-	
-	[XOn("Ethereum")]
-	public string Hash;
-	
-	[XOn("Desktop")]
-	public string FirstName;
-	
-	[XOn("Desktop")]
-	public string LastName;
-	
-	[XOn("Desktop")]
-	public string Email;
-	
-	[XOn("Desktop")]
-	public int Mobile;
-	
-	[XOn("Desktop")]
-	public string Description;
+    public string Username;
+
+    public string FirstName;
+
+    public string LastName;
+
+    public string Email;
+
+    public long Mobile;
+
+    public string Description;
 }
 
-[XAll()]
+[XOn("Desktop")]
 public class Post : XModel("SocialNetwork")
 {
-	[XOn("Desktop")]
-	public int Id;
+    public int Id;
 
-	[XOn("Ethereum")]
-	public string Hash;
+    public int Author;
 
-	[XOn("Desktop")]
-	public string Content;
+    public string Content;
+    
+    public long Timestamp;
+
+    public int Likes;
 }
 
-[XAll()]
+[XOn("Desktop")]
 public class SocialNetwork
 {
-	[XOn("Ethereum")]
-	public int Fee = 1;
+    public IPaymentPortal _paymentPortal;
 
-	public int TestFee = 2;
+    public SocialNetwork(IPaymentPortal paymentPortal)
+    {
+        _paymentPortal = paymentPortal ?? throw new ArgumentNullException(nameof(paymentPortal));
+    }
 
-	public void Register(User user)
-	{
-		@XOn("Desktop", user)
-		{
-			Assert(user.IsNotNull());
-			user.Hash = BlockchainTools.Hash(user);
-		}
+    public void Register(Profile profile)
+    {
+        bool exists = IsUsernamePresentQuery<bool>.Execute(new {profile.Username});
+        if(!exists)
+        {
+            _paymentPortal.ProcessPayment(profile.Username);
+            InsertProfileCommand.Execute(new
+            {
+                profile.Username,
+                profile.FirstName,
+                profile.LastName,
+                profile.Email,
+                profile.Mobile,
+                profile.Description
+            });
+        }
+    }
 
-		Assert(user.IsNotNull());
+    public Profile GetProfile(int id)
+    {
+        return GetProfileQuery<Profile>.Execute(new {Id = id});
+    }
 
-		~@XOn("Ethereum", user)
-		{
-			Assert(Tx.user.balance >= FEE);
-			Store(user);
-			Tx.user.balance -= FEE;
-		}
-	}
+    public void EditProfile(Profile profile)
+    {
+        bool exists = IsUsernamePresentQuery<bool>.Execute(new {profile.Username});
+        if(exists)
+        {
+            UpdateProfileCommand.Execute(new
+            {
+                profile.Username,
+                profile.FirstName,
+                profile.LastName,
+                profile.Email,
+                profile.Mobile,
+                profile.Description
+            });
+        }
+    }
 
-	public void AddPost(Post post)
-	{
-		@XOn("Desktop", post)
-		{
-			Assert(post.IsNotNull);
-			post.Hash = BlockchainTools.Hash(post);
-		}
+    public void AddPost(Post post)
+    {
+        bool exists = IsUsernamePresentQuery<bool>.Execute(new {profile.Username});
+        if(exists)
+        {
+            AddPostCommand.Execute(new
+            {
+                post.Author,
+                post.Content,
+                post.Timestamp
+            });
+        }
+    }
 
-		~@XOn("Ethereum", post)
-		{
-			Store(post);
-		}
-	}
+    public Post GetPost(int id)
+    {
+        return GetPostQuery<Post>.Execute(new {Id = id});
+    }
+
+    public IEnumerable<Post> GetUserPosts(int id)
+    {
+        return GetUserPostsQuery<Post>.Execute(new {Id = id});
+    }
+
+    public void EditPost(Post post)
+    {
+        bool authorIsCaller = IsPostAuthorMatch<bool>.Execute(new {post.Author});
+        if(authorIsCaller)
+        {
+            EditPostCommand.Execute(new {post.Content});
+        }
+    }
+
+    public void DeletePost(int id)
+    {
+        bool authorIsCaller = IsPostAuthorMatch<bool>.Execute(new {post.Author});
+        if(authorIsCaller)
+        {
+            DeletePostCommand.Execute(new {Id = id});
+        }
+    }
+
+    public void LikePost(int id)
+    {
+        LikePostCommand.Execute(new {Id = id});
+    }
 }

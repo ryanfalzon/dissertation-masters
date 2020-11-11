@@ -49,6 +49,24 @@ namespace UnifiedModel.SourceGenerator.Helpers
             };
         }
 
+        public static ConstructorDetails GetConstructorDetails(this ConstructorDeclarationSyntax constructorDeclarationSyntax)
+        {
+            Enum.TryParse(constructorDeclarationSyntax.Modifiers.First().ValueText, out Modifiers modifier);
+            var identifier = constructorDeclarationSyntax.Identifier.ValueText;
+            var parameters = constructorDeclarationSyntax.ParameterList.Parameters.ToString();
+            var attribute = constructorDeclarationSyntax.AttributeLists.Count == 0 ? string.Empty : constructorDeclarationSyntax.AttributeLists[0].Attributes[0].Name.ToString();
+            var attributeArgument = constructorDeclarationSyntax.AttributeLists.Count == 0 ? string.Empty : constructorDeclarationSyntax.AttributeLists.FirstOrDefault()?.Attributes.FirstOrDefault()?.ArgumentList.Arguments.FirstOrDefault()?.ToString();
+
+            return new ConstructorDetails()
+            {
+                Modifier = modifier,
+                Identifier = identifier,
+                Parameters = parameters,
+                Attribute = attribute,
+                AttributeArgument = attributeArgument
+            };
+        }
+
         public static MethodDetails GetMethodDetails(this MethodDeclarationSyntax methodDeclarationSyntax)
         {
             Enum.TryParse(methodDeclarationSyntax.Modifiers.First().ValueText, out Modifiers modifier);
@@ -77,11 +95,11 @@ namespace UnifiedModel.SourceGenerator.Helpers
             };
         }
 
-        public static ExpressionDetails GetExpressionDetails(this ExpressionStatementSyntax expressionStatementSyntax)
+        public static ExpressionDetails GetSyntaxNodeDetails(this SyntaxNode expressionStatementSyntax)
         {
             return new ExpressionDetails()
             {
-                Statement = expressionStatementSyntax.Expression.ToString()
+                Statement = expressionStatementSyntax.ToString()
             };
         }
     }

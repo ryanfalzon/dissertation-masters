@@ -35,6 +35,15 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             return field.Hash;
         }
 
+        public override string AddConstructor(ConstructorDetails constructorDetails, string parentHash)
+        {
+            Constructor constructor = new Constructor(constructorDetails.Modifier, constructorDetails.Identifier, constructorDetails.Parameters, constructorDetails.ParameterAnchor, parentHash);
+            constructor.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(constructor))));
+            Memory.Add(constructor);
+
+            return constructor.Hash;
+        }
+
         public override string AddMethod(MethodDetails methodDetails, string parentHash)
         {
             Method method = new Method(methodDetails.Modifier, methodDetails.ReturnType, methodDetails.Identifier, methodDetails.Parameters, methodDetails.ParameterAnchor, parentHash);
@@ -59,9 +68,9 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             return $"{field.Type} {field.Name}";
         }
 
-        public override void AddMethodParameters(MethodDetails methodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters, string lastKnownBlockHash)
+        public override string AddMethodParameters(BaseMethodDetails baseMethodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters)
         {
-            return;
+            return string.Empty;
         }
     }
 }

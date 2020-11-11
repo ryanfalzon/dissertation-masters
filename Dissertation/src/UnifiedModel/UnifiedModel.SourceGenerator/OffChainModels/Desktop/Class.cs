@@ -20,6 +20,9 @@ namespace UnifiedModel.SourceGenerator.OffChainModels.Desktop
         [JsonProperty("fields")]
         public IEnumerable<Field> Fields { get; set; }
 
+        [JsonProperty("constructors")]
+        public IEnumerable<Constructor> Constructors { get; set; }
+
         [JsonProperty("method")]
         public IEnumerable<Method> Methods { get; set; }
 
@@ -30,6 +33,7 @@ namespace UnifiedModel.SourceGenerator.OffChainModels.Desktop
             ParentHash = parentHash;
             ModelProperties = modelProperties;
             Fields = new List<Field>();
+            Constructors = new List<Constructor>();
             Methods = new List<Method>();
         }
 
@@ -40,7 +44,8 @@ namespace UnifiedModel.SourceGenerator.OffChainModels.Desktop
             var content =  $"{Modifier} class {Name}\n".Tabulate() +
                 $"{{\n".Tabulate() +
                 $"{string.Join("\n", Fields.Select(field => field.ToString()))}\n" +
-                $"{string.Join("\n", Methods.Select(field => field.ToString()))}\n" +
+                $"{string.Join("\n", Constructors.Select(constructor => constructor.ToString()))}\n" +
+                $"{string.Join("\n", Methods.Select(method => method.ToString()))}\n" +
                 $"}}".Tabulate();
 
             Tools.IndentationLevel = 0;
