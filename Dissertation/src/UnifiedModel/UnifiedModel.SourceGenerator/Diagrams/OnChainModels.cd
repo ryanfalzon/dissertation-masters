@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="UnifiedModel.SourceGenerator.OnChainModels.Ethereum.Contract">
+    <Position X="4.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAYAAAAAAAAAAAAAAAAGAAA=</HashCode>
+      <FileName>OnChainModels\Ethereum\Contract.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UnifiedModel.SourceGenerator.OnChainModels.Ethereum.Expression">
+    <Position X="11.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAACAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>OnChainModels\Ethereum\Expression.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UnifiedModel.SourceGenerator.OnChainModels.Ethereum.Function">
+    <Position X="9.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQABAAAAAAAAAAEAAAAAAQAAAAAAAAAAIAAAgAAAAA=</HashCode>
+      <FileName>OnChainModels\Ethereum\Function.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UnifiedModel.SourceGenerator.OnChainModels.Ethereum.Property">
+    <Position X="6" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAAEAAAAAAQAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>OnChainModels\Ethereum\Property.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UnifiedModel.SourceGenerator.OnChainModels.Ethereum.Struct">
+    <Position X="7.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAEAAAAAAQAAAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>OnChainModels\Ethereum\Struct.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UnifiedModel.SourceGenerator.CommonModels.ChainModel">
+    <Position X="7.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAA=</HashCode>
+      <FileName>CommonModels\ChainModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
