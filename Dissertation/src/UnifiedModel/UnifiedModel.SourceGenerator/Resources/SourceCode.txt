@@ -1,158 +1,278 @@
-[XOn("Ethereum")]
+[XAll()]
 public class Profile : XModel("SocialNetwork")
 {
-    [NotParameter]
-    public bytes32 Id;
+    [XAll()]
+    public int Id;
 
-    public address PublicKey;
+    [XAll()]
+    public string Hash;
 
+    [XOn("Desktop")]
+    public string Username;
+
+    [XOn("Desktop")]
     public string FirstName;
 
+    [XOn("Desktop")]
     public string LastName;
 
+    [XOn("Desktop")]
     public string Email;
 
+    [XOn("Desktop")]
     public int Mobile;
 
+    [XOn("Desktop")]
     public string Description;
 }
 
-[XOn("Ethereum")]
+[XAll()]
 public class Post : XModel("SocialNetwork")
 {
-    [NotParameter]
-    public bytes32 Id;
+    [XAll()]
+    public int Id;
 
+    [XAll()]
+    public string Hash;
+
+    [XOn("Desktop")]
     public address Author;
 
+    [XOn("Desktop")]
     public string Content;
     
-    public int Timestamp;
+    [XOn("Desktop")]
+    public long Timestamp;
 
+    [XOn("Desktop")]
     public int Likes;
 
+    [XOn("Desktop")]
     public bool IsVisible;
 }
 
-[XOn("Ethereum)]
+[XAll()]
+public class PrivacySettings : XModel("SocialNetwork")
+{
+    public int ProfileId;
+
+    public bool IsProfileVisible;
+
+    public bool ArePostsVisible;
+}
+
+[XAll()]
 public class SocialNetwork
 {
-    mapping(address => bool) public registeredUsers;
-    mapping(address => Profile) public userProfiles;
-    mapping(address => bytes32[]) public userPosts;
-    mapping(bytes32 => Post) public posts;
+    //mapping(int => Profile) public profiles;
+    //mapping(int => Post) public posts;
+    //mapping(int => PrivacySettings) public privacySettings;
+
+    [XOn("Desktop")]
+    public IPaymentPortal _paymentPortal { get; set; }
+
+    [XOn("Desktop")]
+    public SocialNetwork(IPaymentPortal paymentPortal)
+    {
+        _paymentPortal = paymentPortal ?? throw new ArgumentNullException(nameof(paymentPortal));
+    }
     
+    [XOn("Desktop")]
     public void Register(Profile profile)
     {
-        @XOn("Ethereum", profile)
+        bool exists = IsUsernamePresentQuery<bool>.Execute(new {profile.Username});
+        if(!exists)
         {
-            assert(!registeredUsers[msg.sender]);
-            assert(address(msg.sender).balance >= 1);
-            
-            bytes32 id = keccak256(abi.encodePacked(msg.sender, profile.FirstName, profile.LastName, profile.Email, profile.Mobile, profile.Description, now));
-            Profile memory profile = Profile(id, msg.sender, profile.FirstName, profile.LastName, profile.Email, profile.Mobile, profile.Description);
-            registeredUsers[msg.sender] = true;
-            userProfiles[msg.sender] = profile;
+            _paymentPortal.ProcessPayment(profile.Username);
+            var id = InsertProfileCommand.Execute(new
+            {
+                profile.Username,
+                profile.FirstName,
+                profile.LastName,
+                profile.Email,
+                profile.Mobile,
+                profile.Description
+            });
+
+            var hash = profile.Hash();
+            AddProfileHash(id, hash);
         }
     }
 
-    public Profile GetProfile(address publicKey)
+    public void AddProfileHash(int id, string hash)
     {
-        @XOn("Ethereum", publicKey)
-        {
-            assert(registeredUsers[publicKey]);
+        ~@XOn("Desktop"){}
         
-            Profile memory profile = userProfiles[publicKey];
-            return(profile.Id, profile.FirstName, profile.LastName, profile.Email, profile.Mobile, profile.Description);
+        @XOn("Ethereum", id, hash)
+        {
+            Profile profile = Profile(id, hash);
+            profiles[id] = profile;
         }
     }
 
+    [XOn("Desktop")]
+    public Profile GetProfile(int id)
+    {
+        var profile = GetProfileQuery<Profile>.Execute(new {Id = id});
+        profile.Hash = GetProfileHash();
+        return profile;
+    }
+
+    public string GetProfileHash(int id)
+    {
+        ~@XOn("Desktop"){}
+        
+        return @XOn("Ethereum", id)
+        {
+            Profile profile = profiles[id];
+            return(profile.Hash);
+        }
+    }
+
+    [XOn("Desktop")]
     public void EditProfile(Profile profile)
     {
-        @XOn("Ethereum", profile)
+        bool exists = IsUsernamePresentQuery<bool>.Execute(new {profile.Username});
+        if(exists)
         {
-            assert(registeredUsers[msg.sender]);
-        
-            bytes32 newId = keccak256(abi.encodePacked(msg.sender, firstName, lastName, email, mobile, description, now));
-            
-            Profile memory profile = userProfiles[msg.sender];
-            profile.id = newId;
-            profile.firstName = profile.FirstName;
-            profile.lastName = profile.LastName;
-            profile.email = profile.Email;
-            profile.mobile = profile.Mobile;
-            profile.description = profile.Description;
-            
-            userProfiles[msg.sender] = profile;
+            UpdateProfileCommand.Execute(new
+            {
+                profile.Id,
+                profile.Username,
+                profile.FirstName,
+                profile.LastName,
+                profile.Email,
+                profile.Mobile,
+                profile.Description
+            });
+
+            var hash = profile.Hash();
+            EditProfileHash(profile.Id, hash);
         }
     }
 
+    public void EditProfileHash(int id, string hash)
+    {
+        ~@XOn("Desktop"){}
+
+        @XOn("Ethereum", id, hash)
+        {
+            Profile profile = profiles[id];
+            profile.Hash = hash;
+            profiles[id] = profile;
+        }
+    }
+
+    [XOn("Desktop")]
     public void AddPost(Post post)
     {
-        @XOn("Ethereum", post)
+        bool exists = IsUsernamePresentQuery<bool>.Execute(new {profile.Username});
+        if(exists)
         {
-            assert(registeredUsers[msg.sender]);
-        
-            uint256 timestamp = now;
-            bytes32 id = keccak256(abi.encodePacked(msg.sender, post.Content, post.Timestamp));
-            Post memory post = Post(id, msg.sender, post.Content, post.Timestamp, 0, true);
-            
-            userPosts[msg.sender].push(id);
+            var id = AddPostCommand.Execute(new
+            {
+                post.Author,
+                post.Content,
+                post.Timestamp
+            });
+
+            var hash = post.Hash();
+            AddPostHash(id, hash);
+        }
+    }
+
+    public void AddPostHash(int id, string hash)
+    {
+        ~@XOn("Desktop"){}
+
+        @XOn("Ethereum", id, hash)
+        {
+            Post post = Post(id, hash);
             posts[id] = post;
         }
     }
 
+    [XOn("Desktop")]
     public Post GetPost(int id)
     {
-        @XOn("Ethereum", id)
+        var post = GetPostQuery<Post>.Execute(new {Id = id});
+        post.Hash = GetPostHash();
+        return profile;
+    }
+
+    public string GetPostHash(int id)
+    {
+        ~@XOn("Desktop"){}
+
+        return @XOn("Ethereum", id)
         {
-            Post memory post = posts[id];
-            assert(post.IsVisible);
-            return(post.Author, post.Content, post.Likes);
+            Post post = posts[id];
+            return(post.Hash);
         }
     }
 
+    [XOn("Desktop")]
     public IEnumerable<string> GetUserPosts(address publicKey)
     {
-        @XOn("Ethereum", publicKey)
-        {
-            return userPosts[publicKey];
-        }
+        return GetUserPostsQuery<Post>.Execute(new {Id = id});
     }
 
+    [XOn("Desktop")]    
     public void EditPost(Post post)
     {
-        @XOn("Ethereum", post)
+        bool authorIsCaller = IsPostAuthorMatch<bool>.Execute(new {post.Author});
+        if(authorIsCaller)
         {
-            Post memory post = posts[id];
-            assert(post.Author == msg.sender);
-            post.Content = content;
-            
-            bytes32 newId = keccak256(abi.encodePacked(post.Author, post.Content, post.Timestamp, post.Likes));
-            post.id = newId;
-            
-            posts[newId].isVisible = false;
-            userPosts[msg.sender].push(newId);
-            posts[newId] = post;
+            EditPostCommand.Execute(new {post.Content});
+
+            var hash = post.Hash();
+            EditPostHash(post.Id, hash);
         }
     }
 
+    public void EditPostHash(int id, string hash)
+    {
+        ~@XOn("Desktop"){}
+
+        @XOn("Ethereum", id, hash)
+        {
+            Post post = posts[id];
+            post.Hash = hash;
+            posts[id] = post;
+        }
+    }
+
+    [XOn("Desktop")]
     public void DeletePost(int id)
     {
-        @XOn("Ethereum", id)
+        bool authorIsCaller = IsPostAuthorMatch<bool>.Execute(new {post.Author});
+        if(authorIsCaller)
         {
-            assert(posts[id].Author == msg.sender);
-            assert(posts[id].IsVisible);
-            posts[id].IsVisible = false;
+            DeletePostCommand.Execute(new {Id = id});
         }
     }
 
+    [XOn("Desktop")]
     public void LikePost(int id)
     {
-        @XOn("Ethereum", id)
+        LikePostCommand.Execute(new {Id = id});
+    }
+
+    public void EditPrivacySettings(PrivacySettings ps)
+    {
+        @XOn("Desktop", privacySettings)
         {
-            assert(posts[id].IsVisible);
-            posts[id].Likes++;
+            bool ownerIsCaller = IsProfileOwnerMatch<bool>.Execute(new {ps.ProfileId});
+            if(ownerIsCaller)
+            {
+                throw new NotAuthorisedError();
+            }
+        }
+
+        @XOn("Ethereum", ps)
+        {
+            PrivacySettings privacySetting = PrivacySettings(ps.ProfileId, ps.IsProfileVisible, ps.ArePostsVisible);
+            privacySettings[ps.ProfileId] = privacySetting;
         }
     }
 }

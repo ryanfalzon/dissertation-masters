@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnifiedModel.SourceGenerator.CommonModels;
 using UnifiedModel.SourceGenerator.SourceGenerators;
 
@@ -81,6 +82,53 @@ namespace UnifiedModel.SourceGenerator.Helpers
             }
 
             return false;
+        }
+
+        public static bool IsEnumerableType(this string content)
+        {
+            if(Regex.IsMatch(content, Constants.EnumerableRegex))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static string CheckRequiresMemorySyntax(this Types type)
+        {
+            var required = type switch
+            {
+                Types.@string => true,
+                _ => false
+            };
+
+            return required ? $"{type} memory" : type.ToString();
+        }
+
+        //public static string CheckRequiresMemorySyntax(this string content, List<string> modelTypes)
+        //{
+        //    if(content.Contains(" "))
+        //    {
+        //        var regexPattern = new Regex(string.Join("|", modelTypes);
+        //        regexPattern.Replace(content, delegate (Match m) {
+        //            return m.Value + " memory";
+        //        });
+        //    }
+        //    else
+        //    {
+        //        var parsed = Enum.TryParse(content, out Types parsedType);
+        //        return !parsed && (modelTypes.Contains(content) || content.Contains("[]")) ? $"{content} memory" : parsedType.CheckRequiresMemorySyntax();
+        //    }
+        //}
+
+        public static string CheckRequiresMemorySyntax(this string content, List<string> modelTypes)
+        {
+            var variableDecleration = content.Split(" ", 2);
+            var variableType = variableDecleration.First();
+            var variableName = variableDecleration.Length == 1 ? string.Empty : $" {variableDecleration.Last()}";
+
+            var parsed = Enum.TryParse(variableDecleration.First(), out Types parsedType);
+            return !parsed && (modelTypes.Contains(variableType) || variableType.Contains("[]")) ? $"{variableType} memory{variableName}" : (parsedType.CheckRequiresMemorySyntax() + variableName);
         }
     }
 }

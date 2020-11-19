@@ -7,5 +7,7 @@ namespace UnifiedModel.SourceGenerator.CommonModels
         public XChains Location { get; set; }
 
         public string Hash { get; set; }
+
+        public bool IsParameter { get; set; }
     }
 }

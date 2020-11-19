@@ -16,11 +16,19 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
         string AddMethod(MethodDetails methodDetails, string parentHash);
 
-        string AddMethodParameters(BaseMethodDetails baseMethodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters);
+        string AddMethodParameters(BaseMethodDetails baseMethodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters, List<string> modelTypes);
+        
+        void AddMethodReturnTypes(MethodDetails methodDetails, string methodHash, Func<string, string, List<string>> generateReturnTypes, List<string> modelTypes);
 
-        string AddExpression(ExpressionDetails expressionDetails, string parentHash);
+        string AddExpression(ExpressionDetails expressionDetails, string parentHash, List<string> modelTypes = null);
 
         string CreatePropertyArgument(string hash);
+
+        string CreateReturnType(string hash);
+
+        void TypeMapper(ref Types type);
+
+        void StringMapper(ref string text);
 
         void Consume();
     }

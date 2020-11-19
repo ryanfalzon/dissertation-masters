@@ -20,7 +20,6 @@ namespace UnifiedModel.SourceGenerator
 
         private readonly Dictionary<string, List<ModelProperty>> Models;
 
-
         public LexicalAnalyser(string filePath)
         {
             FileContent = File.ReadAllText(filePath);
@@ -63,6 +62,21 @@ namespace UnifiedModel.SourceGenerator
                             }
 
                             classDetails.ParentHashes = classHashes;
+
+                            var singleLineComments = classDeclarationSyntax.DescendantTrivia().Where(descendent => descendent.IsKind(SyntaxKind.SingleLineCommentTrivia));
+                            foreach (var singleLineComment in singleLineComments)
+                            {
+                                var comment = singleLineComment.ToFullString().Split("//").Last().Trim();
+                                if (Regex.IsMatch(syntaxNode.ToString(), Constants.XOnRegex) && classHashes.ContainsKey(XChains.Ethereum))
+                                {
+                                    var expressionDetails = singleLineComment.GetExpressionDetails();
+                                    Generator.Get(Constants.XOn, Constants.XOnEthereumChain).ForEach(generator =>
+                                    {
+                                        generator.AddExpression(expressionDetails, classHashes.Where(classHash => classHash.Key == XChains.Ethereum).FirstOrDefault().Value);
+                                    });
+                                }
+                            }
+
                             foreach (var member in classDeclarationSyntax.Members)
                             {
                                 ProcessChild(member, classDetails);
@@ -97,14 +111,12 @@ namespace UnifiedModel.SourceGenerator
                             {
                                 foreach (var fieldHash in fieldHashes)
                                 {
-                                    if(fieldDetails.IsParameter)
+                                    Models[parsedPreviousNodeDetails.Name].Add(new ModelProperty
                                     {
-                                        Models[parsedPreviousNodeDetails.Name].Add(new ModelProperty
-                                        {
-                                            Location = fieldHash.Key,
-                                            Hash = fieldHash.Value
-                                        });
-                                    }
+                                        Location = fieldHash.Key,
+                                        Hash = fieldHash.Value,
+                                        IsParameter = fieldDetails.IsParameter
+                                    });
                                 }
                             }
                         }
@@ -154,7 +166,7 @@ namespace UnifiedModel.SourceGenerator
                                     constructorDetails.Attribute = Constants.XOn;
                                     constructorDetails.AttributeArgument = blockAttribute;
 
-                                    Generator.Get(Constants.XOn, blockAttribute).ForEach(generator => generator.AddMethodParameters(constructorDetails, constructorHashes.Where(methodHash => methodHash.Key.ToString() == blockAttribute).First().Value, GetModelParameters));
+                                    Generator.Get(Constants.XOn, blockAttribute).ForEach(generator => generator.AddMethodParameters(constructorDetails, constructorHashes.Where(methodHash => methodHash.Key.ToString() == blockAttribute).First().Value, GetModelParameters, Models.Select(model => model.Key).ToList()));
 
                                     ProcessChild(statementQueue.Dequeue(), constructorDetails);
 
@@ -163,8 +175,8 @@ namespace UnifiedModel.SourceGenerator
                                 else
                                 {
                                     constructorDetails.ParentHashes = constructorHashes;
-                                    constructorDetails.Attribute = previousNodeDetails.Attribute;
-                                    constructorDetails.AttributeArgument = previousNodeDetails.AttributeArgument;
+                                    constructorDetails.Attribute = constructorDetails.Attribute;
+                                    constructorDetails.AttributeArgument = constructorDetails.AttributeArgument;
                                     ProcessChild(member, constructorDetails);
                                 }
                             }
@@ -184,6 +196,11 @@ namespace UnifiedModel.SourceGenerator
                         if (previousNodeDetails != null && previousNodeDetails.GetType() == typeof(ClassDetails))
                         {
                             var methodDetails = methodDeclarationSyntax.GetMethodDetails();
+                            if (methodDetails.Attribute.Equals(string.Empty))
+                            {
+                                methodDetails.Attribute = previousNodeDetails.Attribute;
+                                methodDetails.AttributeArgument = previousNodeDetails.AttributeArgument;
+                            }
 
                             var methodHashes = Generator.Get(string.IsNullOrEmpty(methodDetails.Attribute) ? previousNodeDetails.Attribute : methodDetails.Attribute, string.IsNullOrEmpty(methodDetails.Attribute) ? previousNodeDetails.AttributeArgument : methodDetails.AttributeArgument).Select(generator =>
                             {
@@ -212,17 +229,24 @@ namespace UnifiedModel.SourceGenerator
                                     methodDetails.Attribute = Constants.XOn;
                                     methodDetails.AttributeArgument = blockAttribute;
 
-                                    Generator.Get(Constants.XOn, blockAttribute).ForEach(generator => {
-                                        var xCallArguments = generator.AddMethodParameters(methodDetails, methodHashes.Where(methodHash => methodHash.Key.ToString() == blockAttribute).First().Value, GetModelParameters);
-                                        Generator.Get(Constants.XOn, Constants.XOnDesktop).ForEach(generator =>
+                                    Generator.Get(Constants.XOn, blockAttribute).ForEach(generator =>
+                                    {
+                                        var xCallArguments = generator.AddMethodParameters(methodDetails, methodHashes.Where(methodHash => methodHash.Key.ToString() == blockAttribute).First().Value, GetModelParameters, Models.Select(model => model.Key).ToList());
+                                        generator.AddMethodReturnTypes(methodDetails, methodHashes.Where(methodHash => methodHash.Key.ToString() == blockAttribute).First().Value, GetModelReturnsTypes, Models.Select(model => model.Key).ToList());
+
+                                        if (!blockAttribute.Equals(Constants.XOnDesktop))
                                         {
-                                            generator.AddExpression(new ExpressionDetails()
+                                            Generator.Get(Constants.XOn, Constants.XOnDesktop).ForEach(generator =>
                                             {
-                                                Statement = (methodDetails.IsAsynchronous ? "await " : string.Empty) + string.Format(Constants.XCallExpression, Constants.XOnEthereumChain, methodDetails.Identifier, xCallArguments)
-                                            }, lastKnownBlockHash);
-                                        });
+                                                var isReturnStatement = member.ToString().StartsWith("return");
+                                                generator.AddExpression(new ExpressionDetails()
+                                                {
+                                                    Statement = (isReturnStatement ? "return " : string.Empty) + (methodDetails.IsAsynchronous ? "await " : string.Empty) + string.Format(Constants.XCallExpression, Constants.XOnEthereumChain, methodDetails.Identifier, xCallArguments)
+                                                }, lastKnownBlockHash);
+                                            });
+                                        }
                                     });
-                                    
+
 
                                     ProcessChild(statementQueue.Dequeue(), methodDetails);
 
@@ -231,8 +255,8 @@ namespace UnifiedModel.SourceGenerator
                                 else
                                 {
                                     methodDetails.ParentHashes = methodHashes;
-                                    methodDetails.Attribute = previousNodeDetails.Attribute;
-                                    methodDetails.AttributeArgument = previousNodeDetails.AttributeArgument;
+                                    methodDetails.Attribute = methodDetails.Attribute;
+                                    methodDetails.AttributeArgument = methodDetails.AttributeArgument;
                                     ProcessChild(member, methodDetails);
                                 }
                             }
@@ -245,6 +269,7 @@ namespace UnifiedModel.SourceGenerator
 
                     break;
 
+                case SyntaxKind.SingleLineCommentTrivia:
                 case SyntaxKind.IfStatement:
                 case SyntaxKind.ReturnStatement:
                 case SyntaxKind.ExpressionStatement:
@@ -252,11 +277,11 @@ namespace UnifiedModel.SourceGenerator
                     {
                         if (previousNodeDetails != null)
                         {
-                            var expressionDetails = syntaxNode.GetSyntaxNodeDetails();
+                            var expressionDetails = syntaxNode.GetExpressionDetails();
                             var statementHashes = Generator.Get(previousNodeDetails.Attribute, previousNodeDetails.AttributeArgument).Select(generator =>
                             {
                                 var key = generator.GetEnumeratedType();
-                                var value = generator.AddExpression(expressionDetails, previousNodeDetails.ParentHashes == null ? string.Empty : previousNodeDetails.ParentHashes[key]);
+                                var value = generator.AddExpression(expressionDetails, previousNodeDetails.ParentHashes == null ? string.Empty : previousNodeDetails.ParentHashes[key], Models.Select(model => model.Key).ToList());
                                 return new KeyValuePair<XChains, string>(key, value);
                             }).ToDictionary(x => x.Key, x => x.Value);
                         }
@@ -316,8 +341,38 @@ namespace UnifiedModel.SourceGenerator
             }
 
             return Models[modelType]
-                .Where(model => model.Location == xChain)
+                .Where(model => model.Location == xChain && model.IsParameter)
                 .Select(model => Generator.Get(Constants.XOn, targetChain).First().CreatePropertyArgument(model.Hash))
+                .ToList();
+        }
+
+        private List<string> GetModelReturnsTypes(string targetChain, string modelType)
+        {
+            var xChain = targetChain switch
+            {
+                Constants.XOnEthereumChain => XChains.Ethereum,
+                _ => throw new InvalidEnumArgumentException("Invalid XChain token!"),
+            };
+
+            if (modelType.IsPrimitiveType())
+            {
+                return new List<string>()
+                {
+                    $"{modelType}"
+                };
+            }
+            else if (modelType.IsEnumerableType())
+            {
+                var type = modelType.Split('<', '>')[1];
+                return new List<string>()
+                {
+                    $"{type}[] memory"
+                };
+            }
+
+            return Models[modelType]
+                .Where(model => model.Location == xChain)
+                .Select(model => Generator.Get(Constants.XOn, targetChain).First().CreateReturnType(model.Hash))
                 .ToList();
         }
     }

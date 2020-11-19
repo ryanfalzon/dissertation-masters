@@ -30,7 +30,7 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
             Tools.IndentationLevel++;
 
             var content = $"struct {Name}{{\n".Tabulate() +
-                $"{string.Join("\n", Properties.Select(property => property.ToString()))}\n" +
+                $"{string.Join("\n", Properties.Select(property => property.ToString().Replace("public ", "").Replace("private ", "")))}\n" +
                 $"}}".Tabulate();
 
             Tools.IndentationLevel--;

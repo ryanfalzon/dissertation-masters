@@ -2,8 +2,26 @@
 {
     public enum Types
     {
+        @void,
+
         @string,
 
-        @int
+        @short,
+
+        @int,
+
+        @long,
+
+        @bool,
+
+        uint8,
+
+        uint128,
+
+        uint256,
+
+        address,
+
+        bytes32
     }
 }

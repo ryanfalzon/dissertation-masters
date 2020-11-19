@@ -41,7 +41,8 @@ namespace UnifiedModel.SourceGenerator.OffChainModels.Desktop
         {
             Tools.IndentationLevel = 0;
 
-            var content =  $"{Modifier} class {Name}\n".Tabulate() +
+            var content =  $"{(!ModelProperties.IsModel ? Constants.DesktopUsingStatements : string.Empty)}\n" +
+                $"{Modifier} class {Name}\n".Tabulate() +
                 $"{{\n".Tabulate() +
                 $"{string.Join("\n", Fields.Select(field => field.ToString()))}\n" +
                 $"{string.Join("\n", Constructors.Select(constructor => constructor.ToString()))}\n" +

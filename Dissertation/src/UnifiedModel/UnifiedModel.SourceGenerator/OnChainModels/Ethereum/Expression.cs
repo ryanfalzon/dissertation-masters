@@ -19,7 +19,7 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
         {
             Tools.IndentationLevel++;
 
-            var content = $"{Statement};".Tabulate();
+            var content = $"{Statement}".Tabulate();
 
             Tools.IndentationLevel--;
 

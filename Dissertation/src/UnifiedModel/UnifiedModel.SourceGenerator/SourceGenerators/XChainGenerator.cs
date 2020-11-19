@@ -28,11 +28,19 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
         public abstract string AddMethod(MethodDetails methodDetails, string parentHash);
 
-        public abstract string AddMethodParameters(BaseMethodDetails baseMethodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters);
+        public abstract string AddMethodParameters(BaseMethodDetails baseMethodDetails, string methodHash, Func<string, string, string, List<string>> generateParameters, List<string> modelTypes);
 
-        public abstract string AddExpression(ExpressionDetails expressionDetails, string parentHash);
+        public abstract void AddMethodReturnTypes(MethodDetails methodDetails, string methodHash, Func<string, string, List<string>> generateReturnTypes, List<string> modelTypes);
+
+        public abstract string AddExpression(ExpressionDetails expressionDetails, string parentHash, List<string> modelTypes = null);
 
         public abstract string CreatePropertyArgument(string hash);
+
+        public abstract string CreateReturnType(string hash);
+
+        public abstract void TypeMapper(ref Types type);
+
+        public abstract void StringMapper(ref string text);
 
         public override string ToString()
         {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Linq;
@@ -17,8 +18,8 @@ namespace UnifiedModel.SourceGenerator.Helpers
             var baseType = classDeclarationSyntax.BaseList?.Types.First().ToString();
             var isModel = !string.IsNullOrEmpty(baseType) && Regex.IsMatch(baseType, Constants.XModelRegex);
             var modelLocation = isModel ? baseType.ToString().Replace("\"", "").Split('(', ')')[1].Split(',').First() : string.Empty;
-            var attribute = classDeclarationSyntax.AttributeLists[0].Attributes[0].Name.ToString();
-            var attributeArgument = classDeclarationSyntax.AttributeLists.FirstOrDefault()?.Attributes.FirstOrDefault()?.ArgumentList.Arguments.FirstOrDefault()?.ToString();
+            var attribute = classDeclarationSyntax.AttributeLists.Count == 0 ? string.Empty : classDeclarationSyntax.AttributeLists[0].Attributes[0].Name.ToString();
+            var attributeArgument = classDeclarationSyntax.AttributeLists.Count == 0 ? string.Empty : classDeclarationSyntax.AttributeLists.FirstOrDefault()?.Attributes.FirstOrDefault()?.ArgumentList.Arguments.FirstOrDefault()?.ToString();
 
             return new ClassDetails()
             {
@@ -85,33 +86,35 @@ namespace UnifiedModel.SourceGenerator.Helpers
             var returnType = methodDeclarationSyntax.ReturnType.ToString();
             var identifier = methodDeclarationSyntax.Identifier.ValueText;
             var parameters = methodDeclarationSyntax.ParameterList.Parameters.ToString();
+            var attribute = methodDeclarationSyntax.AttributeLists.Count == 0 ? string.Empty : methodDeclarationSyntax.AttributeLists[0].Attributes[0].Name.ToString();
+            var attributeArgument = methodDeclarationSyntax.AttributeLists.Count == 0 ? string.Empty : methodDeclarationSyntax.AttributeLists.FirstOrDefault()?.Attributes.FirstOrDefault()?.ArgumentList.Arguments.FirstOrDefault()?.ToString();
 
             return new MethodDetails()
             {
                 Modifier = modifier,
                 ReturnType = returnType,
                 Identifier = identifier,
-                Parameters = parameters
+                Parameters = parameters,
+                Attribute = attribute,
+                AttributeArgument = attributeArgument
             };
         }
 
-        public static MethodDetails GenerateOnChainMethodDetails(this MethodDetails methodDetails, string newParameters)
-        {
-            return new MethodDetails()
-            {
-                Modifier = Modifiers.@public,
-                ReturnType = methodDetails.ReturnType,
-                Identifier = methodDetails.Identifier,
-                Parameters = newParameters,
-                ParameterAnchor = methodDetails.Parameters
-            };
-        }
-
-        public static ExpressionDetails GetSyntaxNodeDetails(this SyntaxNode expressionStatementSyntax)
+        public static ExpressionDetails GetExpressionDetails(this SyntaxNode expressionStatementSyntax)
         {
             return new ExpressionDetails()
             {
+                SyntaxKind = expressionStatementSyntax.Kind(),
                 Statement = expressionStatementSyntax.ToString()
+            };
+        }
+
+        public static ExpressionDetails GetExpressionDetails(this SyntaxTrivia syntaxTrivia)
+        {
+            return new ExpressionDetails()
+            {
+                SyntaxKind = SyntaxKind.SingleLineCommentTrivia,
+                Statement = syntaxTrivia.ToFullString().Split("//").Last(),
             };
         }
     }

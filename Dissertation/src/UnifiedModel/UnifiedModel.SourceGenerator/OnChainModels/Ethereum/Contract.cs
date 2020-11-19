@@ -23,6 +23,9 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
         [JsonProperty("functions")]
         public IEnumerable<Function> Functions{ get; set; }
 
+        [JsonProperty("expressions")]
+        public IEnumerable<Expression> Expressions { get; set; }
+
         public Contract(string name, string parentHash)
         {
             Name = name;
@@ -31,6 +34,7 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
             Properties = new List<Property>();
             Constructors = new List<Constructor>();
             Functions = new List<Function>();
+            Expressions = new List<Expression>();
         }
 
         public override string ToString()
@@ -41,6 +45,7 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
                 $"contract {Name}{{\n".Tabulate() +
                 $"{string.Join("\n", Structs.Select(@struct => @struct.ToString()))}\n" +
                 $"{string.Join("\n", Properties.Select(property => property.ToString()))}\n" +
+                $"{string.Join("\n", Expressions.Select(expression => expression.ToString()))}\n" +
                 $"{string.Join("\n", Constructors.Select(constructor => constructor.ToString()))}\n" +
                 $"{string.Join("\n", Functions.Select(function => function.ToString()))}\n" +
                 $"}}".Tabulate();

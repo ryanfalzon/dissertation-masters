@@ -20,15 +20,19 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
         [JsonIgnore]
         public string ParameterAnchor { get; set; }
 
+        [JsonProperty("returnTypes")]
+        public string ReturnTypes { get; set; }
+
         [JsonProperty("expressions")]
         public IEnumerable<Expression> Expressions { get; set; }
 
-        public Function(string name, Modifiers modifier, string parameters, string parameterAnchor, string parentHash)
+        public Function(string name, Modifiers modifier, string parameters, string parameterAnchor, string returnTypes, string parentHash)
         {
             Name = name;
             Modifier = modifier;
             Parameters = parameters;
             ParameterAnchor = parameterAnchor;
+            ReturnTypes = returnTypes;
             ParentHash = parentHash;
             Expressions = new List<Expression>();
         }
@@ -37,7 +41,8 @@ namespace UnifiedModel.SourceGenerator.OnChainModels.Ethereum
         {
             Tools.IndentationLevel++;
 
-            var content = $"function {Name}({Parameters}) {Modifier} {{\n".Tabulate() +
+            var formatedReturnTypes = ReturnTypes.Equals("void") ? string.Empty : $" returns ({ReturnTypes}) ";
+            var content = $"function {Name}({Parameters}) {Modifier}{formatedReturnTypes}{{\n".Tabulate() +
                 $"{string.Join("\n", Expressions.Select(expression => expression.ToString()))}\n" +
                 $"}}".Tabulate();
 

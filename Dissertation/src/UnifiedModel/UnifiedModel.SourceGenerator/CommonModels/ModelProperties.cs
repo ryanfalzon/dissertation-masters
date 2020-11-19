@@ -8,7 +8,7 @@
 
         public ModelProperties(bool isModel, string location)
         {
-            IsModel = IsModel;
+            IsModel = isModel;
             Location = location;
         }
     }
