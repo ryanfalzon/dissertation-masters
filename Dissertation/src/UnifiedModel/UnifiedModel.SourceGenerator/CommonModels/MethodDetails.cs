@@ -6,6 +6,6 @@ namespace UnifiedModel.SourceGenerator.CommonModels
     {
         public string ReturnType { get; set; }
 
-        public bool IsAsynchronous { get; set; }
+        public bool IsSynchronous { get; set; }
     }
 }

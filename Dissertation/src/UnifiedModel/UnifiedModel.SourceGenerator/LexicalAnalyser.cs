@@ -220,11 +220,11 @@ namespace UnifiedModel.SourceGenerator
                                     var onChainArguments = member.ToString().Split('(', ')')[1].Split(',').ToList();
                                     var blockAttribute = onChainArguments.First().Contains("\"") ? onChainArguments.First().Replace("\"", "") : onChainArguments.First();
                                     var argumentList = onChainArguments.Skip(1).ToList().Select(argument => argument.Trim()).ToList();
-                                    var isAsynchronous = member.ToString().StartsWith('~');
+                                    var isSynchronous = member.ToString().StartsWith(Constants.SynchronousEscapeCharacter);
 
                                     methodDetails.Arguments = argumentList;
 
-                                    methodDetails.IsAsynchronous = isAsynchronous;
+                                    methodDetails.IsSynchronous = isSynchronous;
                                     methodDetails.ParentHashes = methodHashes.Where(methodHash => methodHash.Key.ToString() == blockAttribute).ToDictionary(methodHash => methodHash.Key, methodHash => methodHash.Value);
                                     methodDetails.Attribute = Constants.XOn;
                                     methodDetails.AttributeArgument = blockAttribute;
@@ -241,7 +241,7 @@ namespace UnifiedModel.SourceGenerator
                                                 var isReturnStatement = member.ToString().StartsWith("return");
                                                 generator.AddExpression(new ExpressionDetails()
                                                 {
-                                                    Statement = (isReturnStatement ? "return " : string.Empty) + (methodDetails.IsAsynchronous ? "await " : string.Empty) + string.Format(Constants.XCallExpression, Constants.XOnEthereumChain, methodDetails.Identifier, xCallArguments)
+                                                    Statement = (isReturnStatement ? "return " : string.Empty) + (methodDetails.IsSynchronous ? "await " : string.Empty) + string.Format(Constants.XCallExpression, Constants.XOnEthereumChain, methodDetails.Identifier, xCallArguments)
                                                 }, lastKnownBlockHash);
                                             });
                                         }

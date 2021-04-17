@@ -6,7 +6,11 @@ namespace UnifiedModel.SourceGenerator.CommonModels
 {
     public static class Constants
     {
-        public const string NotParameter = "NotParameter";
+        public const string NotParameter = "OutOnly";
+
+        public const string TaregtSyntaxEscapeStatement = "$>";
+
+        public const char SynchronousEscapeCharacter = '~';
 
         public const string XOn = "XOn";
 
@@ -31,12 +35,12 @@ namespace UnifiedModel.SourceGenerator.CommonModels
         public const string DesktopUsingStatements = "using UnifiedModel.Connectors;\n" +
             "using UnifiedModel.Connectors.Ethereum;\n";
 
-        public static ReadOnlyCollection<string> EthereumChainMapperKeywords = new ReadOnlyCollection<string>(new List<string>()
+        public static ReadOnlyCollection<string> EthereumChainMapperKeywords = new(new List<string>()
         {
             "short", "int", "long"
         });
 
-        public static ReadOnlyCollection<string> DesktopMapperKeywords = new ReadOnlyCollection<string>(new List<string>()
+        public static ReadOnlyCollection<string> DesktopMapperKeywords = new(new List<string>()
         {
             "address", "bytes32", "uint8", "uint128", "uint256"
         });

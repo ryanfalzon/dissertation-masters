@@ -114,7 +114,7 @@ namespace UnifiedModel.SourceGenerator.Helpers
             return new ExpressionDetails()
             {
                 SyntaxKind = SyntaxKind.SingleLineCommentTrivia,
-                Statement = syntaxTrivia.ToFullString().Split("//").Last(),
+                Statement = syntaxTrivia.ToFullString().Split(Constants.TaregtSyntaxEscapeStatement).Last(),
             };
         }
     }

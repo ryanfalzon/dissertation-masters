@@ -19,7 +19,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
 
         public override string AddClass(ClassDetails classDetails, string parentHash)
         {
-            Class @class = new Class(classDetails.Modifier, classDetails.Name, new ModelProperties(classDetails.IsModel, classDetails.ModelLocation), parentHash);
+            Class @class = new(classDetails.Modifier, classDetails.Name, new ModelProperties(classDetails.IsModel, classDetails.ModelLocation), parentHash);
             @class.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@class))));
             Memory.Add(@class);
 
@@ -31,7 +31,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             var type = fieldDetails.Type;
             TypeMapper(ref type);
 
-            Field field = new Field(fieldDetails.Modifier, type, fieldDetails.Name, parentHash);
+            Field field = new(fieldDetails.Modifier, type, fieldDetails.Name, parentHash);
             field.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(field))));
             Memory.Add(field);
 
@@ -46,7 +46,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             var parameterAnchor = constructorDetails.ParameterAnchor;
             StringMapper(ref parameterAnchor);
 
-            Constructor constructor = new Constructor(constructorDetails.Modifier, constructorDetails.Identifier, parameters, parameterAnchor, parentHash);
+            Constructor constructor = new(constructorDetails.Modifier, constructorDetails.Identifier, parameters, parameterAnchor, parentHash);
             constructor.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(constructor))));
             Memory.Add(constructor);
 
@@ -61,7 +61,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             var parameterAnchor = methodDetails.ParameterAnchor;
             StringMapper(ref parameterAnchor);
 
-            Method method = new Method(methodDetails.Modifier, methodDetails.ReturnType, methodDetails.Identifier, parameters, parameterAnchor, parentHash);
+            Method method = new(methodDetails.Modifier, methodDetails.ReturnType, methodDetails.Identifier, parameters, parameterAnchor, parentHash);
             method.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(method))));
             Memory.Add(method);
 
@@ -83,7 +83,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             var statement = expressionDetails.Statement;
             StringMapper(ref statement);
 
-            Expression expression = new Expression(statement, parentHash);
+            Expression expression = new(statement, parentHash);
             expression.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(expression))));
             Memory.Add(expression);
 

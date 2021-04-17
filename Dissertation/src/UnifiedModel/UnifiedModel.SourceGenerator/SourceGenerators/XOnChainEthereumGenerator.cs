@@ -22,7 +22,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
         {
             if (classDetails.IsModel)
             {
-                Struct @struct = new Struct(classDetails.Name, new ModelProperties(classDetails.IsModel, classDetails.ModelLocation), parentHash);
+                Struct @struct = new(classDetails.Name, new ModelProperties(classDetails.IsModel, classDetails.ModelLocation), parentHash);
                 @struct.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@struct))));
                 Memory.Add(@struct);
 
@@ -30,7 +30,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             }
             else
             {
-                Contract contract = new Contract(classDetails.Name, parentHash);
+                Contract contract = new(classDetails.Name, parentHash);
                 contract.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(contract))));
                 Memory.Add(contract);
 
@@ -43,7 +43,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             var type = fieldDetails.Type;
             TypeMapper(ref type);
 
-            Property property = new Property(type, fieldDetails.Name, parentHash);
+            Property property = new(type, fieldDetails.Name, parentHash);
             property.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(property))));
             Memory.Add(property);
 
@@ -58,7 +58,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             var parameterAnchor = constructorDetails.ParameterAnchor;
             StringMapper(ref parameterAnchor);
 
-            Constructor constructor = new Constructor(constructorDetails.Modifier, parameters, parameterAnchor, parentHash);
+            Constructor constructor = new(constructorDetails.Modifier, parameters, parameterAnchor, parentHash);
             constructor.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(constructor))));
             Memory.Add(constructor);
 
@@ -70,7 +70,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             var parameters = methodDetails.Parameters;
             StringMapper(ref parameters);
 
-            Function function = new Function(methodDetails.Identifier, methodDetails.Modifier, string.Empty, parameters, methodDetails.ReturnType, parentHash);
+            Function function = new(methodDetails.Identifier, methodDetails.Modifier, string.Empty, parameters, methodDetails.ReturnType, parentHash);
             function.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(function))));
             Memory.Add(function);
 
@@ -81,7 +81,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
         {
             var mainMethodParameters = baseMethodDetails.Parameters.Split(',').Select(parameter => parameter.Trim());
 
-            List<string> parameterList = new List<string>();
+            List<string> parameterList = new();
             foreach (var argument in baseMethodDetails.Arguments)
             {
                 var mainMethodParameter = mainMethodParameters.Where(parameter => parameter.Contains(argument)).First().Split(' ');
@@ -131,7 +131,7 @@ namespace UnifiedModel.SourceGenerator.SourceGenerators
             var statement = expressionDetails.Statement;
             StringMapper(ref statement);
 
-            Expression expression = new Expression(statement, parentHash);
+            Expression expression = new(statement, parentHash);
             expression.Hash = Tools.ByteToHex(Tools.GetSha256Hash(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(expression))));
             Memory.Add(expression);
 
