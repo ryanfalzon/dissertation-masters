@@ -46,8 +46,6 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
 The widespread interest surrounding blockchain systems, has brought forth the introduction of decentralized applications. Such applications are built using Smart Contracts running on a blockchain network. Due to the siloed nature of blockchains and smart contracts, parts of such applications may have to be executed on different blockchains, or outside the blockchain altogether. For instance, due to privacy constraints arising from GDPR, keeping private data on a public blockchain may not be an options, and would have to be kept on a centralized server which communicates with the blockchain in question.This shift in development methodology introduces new challenges for developers to achieve seamless communication and interaction between off-chain and on-chain code of decentralized applications. The current solution is to program the parts separately including additional code to handle communication between the different systems. Hence, this is considered as a source of additional complexity and also a potential source of error.
 
 In this dissertation, we propose a unified programming model to decentralized application development. We explored techniques that have been used to achieve blockchain interoperability, IoT enabled Smart Contracts, as well as the field of macroprogramming for wireless sensor networks. Our approach  takes a macroprogramming approach, thus allowing for such  systems to be programmed as a monolithic system, but with annotations to add information regarding where each part of the system should be deployed and executed. Ultimately, our aim is to create a development environment where developers can easily explore the placement of data and control flow on different target locations.
@@ -68,8 +66,8 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-1.  Download .NET Core 3.1 from [here]{https://dotnet.microsoft.com/download}.
-2.  Download Git from [here]{https://git-scm.com/downloads}.
+1.  Download .NET Core 3.1 from [here](https://dotnet.microsoft.com/download).
+2.  Download Git from [here](https://git-scm.com/downloads).
 
 ### Installation
 
