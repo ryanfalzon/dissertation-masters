@@ -1,0 +1,11 @@
+{
+	"PublicKey": "",
+	"PrivateKey":  "",
+	"Contracts": [
+		{
+			"Name":  "",
+			"AbiLocation": "",
+			"Address": ""
+		}
+	]
+}
