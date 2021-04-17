@@ -24,7 +24,7 @@ namespace UseCase.Web.Controllers
 
         [HttpGet]
         [Route("get/{userId}")]
-        public IActionResult GetPost(int userId)
+        public IActionResult GetPrivacySettings(int userId)
         {
             try
             {
@@ -39,7 +39,7 @@ namespace UseCase.Web.Controllers
 
         [HttpPut]
         [Route("update")]
-        public IActionResult UpdatePost(PrivacySettingsViewModel privacySettings)
+        public IActionResult UpdatePrivacySettings(PrivacySettingsViewModel privacySettings)
         {
             try
             {

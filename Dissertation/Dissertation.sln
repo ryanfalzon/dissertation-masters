@@ -25,7 +25,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnifiedModel", "UnifiedMode
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnifiedModel.SourceGenerator", "src\UnifiedModel\UnifiedModel.SourceGenerator\UnifiedModel.SourceGenerator.csproj", "{3571C81C-8AD9-428C-A83D-15D5A1787D52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnifiedModel.Connectors", "src\UnifiedModel\UnifiedModel.Connectors\UnifiedModel.Connectors.csproj", "{668EEFEB-46AA-44E8-B082-9538A324B0EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnifiedModel.Connectors", "src\UnifiedModel\UnifiedModel.Connectors\UnifiedModel.Connectors.csproj", "{668EEFEB-46AA-44E8-B082-9538A324B0EA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2EE1B0A1-6668-4BF8-9DE8-AA56B5291385}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
