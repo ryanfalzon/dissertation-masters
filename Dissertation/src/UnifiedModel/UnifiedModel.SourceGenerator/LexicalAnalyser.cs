@@ -26,15 +26,21 @@ namespace UnifiedModel.SourceGenerator
             Models = new Dictionary<string, List<ModelProperty>>();
         }
 
-        public void Process()
+        public void Process(string outputPath)
         {
             var root = CSharpSyntaxTree.ParseText(FileContent).GetRoot();
             ProcessChild(root, new NodeDetails());
 
+            outputPath = outputPath.EndsWith('/') ? outputPath : $"{outputPath}/";
+            if (!Directory.Exists(outputPath))
+            {
+                Directory.CreateDirectory(outputPath);
+            }
+
             var files = Generator.Consume();
             foreach (var (filename, contents) in files)
             {
-                File.WriteAllText($"C://temp/{filename}", contents);
+                File.WriteAllText($"{outputPath}{filename}", contents);
             }
         }
 

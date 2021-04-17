@@ -2,7 +2,7 @@
   "profiles": {
     "UnifiedModel.SourceGenerator": {
       "commandName": "Project",
-      "commandLineArgs": "\"./Resources/SourceCode.txt\""
+      "commandLineArgs": "\"./Resources/SourceCode.txt\", \"C://temp/"
     }
   }
 }
