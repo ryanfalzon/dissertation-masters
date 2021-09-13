@@ -1,0 +1,133 @@
+[XOn("Ethereum")]
+public class Profile : XModel("SocialNetwork")
+{
+    [NotParameter]
+    public Bytes32 Id;
+
+    [NotParameter]
+    public Address PublicKey;
+
+    public string FirstName;
+
+    public string LastName;
+
+    public string Email;
+
+    public int Mobile;
+
+    public string Description;
+}
+
+[XOn("Ethereum")]
+public class Post : XModel("SocialNetwork")
+{
+    [NotParameter]
+    public Bytes32 Id;
+
+    [NotParameter]
+    public Address Author;
+
+    public string Content;
+    
+    public long Timestamp;
+
+    public int Likes;
+
+    public bool IsVisible;
+}
+
+[XOn("Ethereum")]
+public class SocialNetwork
+{
+    //mapping(Address => bool) public registeredUsers;
+    //mapping(Address => Profile) public userProfiles;
+    //mapping(Address => Bytes32[]) public userPosts;
+    //mapping(Bytes32 => Post) public posts;
+    
+    public void Register(Profile p)
+    {
+        assert(!registeredUsers[msg.sender]);
+        assert(address(msg.sender).balance >= 1);
+        
+        Bytes32 id = keccak256(abi.encodePacked(msg.sender, p.FirstName, p.LastName, p.Email, p.Mobile, p.Description, now));
+        Profile profile = Profile(id, msg.sender, p.FirstName, p.LastName, p.Email, p.Mobile, p.Description);
+        registeredUsers[msg.sender] = true;
+        userProfiles[msg.sender] = profile;
+    }
+
+    public Profile GetProfile(Address publicKey)
+    {
+        assert(registeredUsers[publicKey]);
+        
+        Profile profile = userProfiles[publicKey];
+        return(profile.Id, profile.PublicKey, profile.FirstName, profile.LastName, profile.Email, profile.Mobile, profile.Description);
+    }
+
+    public void EditProfile(Profile p)
+    {
+        assert(registeredUsers[msg.sender]);
+        
+        Bytes32 newId = keccak256(abi.encodePacked(msg.sender, p.FirstName, p.LastName, p.Email, p.Mobile, p.Description, now));
+        
+        Profile profile = userProfiles[msg.sender];
+        profile.Id = newId;
+        profile.FirstName = profile.FirstName;
+        profile.LastName = profile.LastName;
+        profile.Email = profile.Email;
+        profile.Mobile = profile.Mobile;
+        profile.Description = profile.Description;
+        
+        userProfiles[msg.sender] = profile;
+    }
+
+    public void AddPost(Post p)
+    {
+        assert(registeredUsers[msg.sender]);
+        
+        long timestamp = now;
+        Bytes32 id = keccak256(abi.encodePacked(msg.sender, p.Content, p.Timestamp));
+        Post post = Post(id, msg.sender, p.Content, p.Timestamp, 0, true);
+        
+        userPosts[msg.sender].push(id);
+        posts[id] = post;
+    }
+
+    public Post GetPost(Bytes32 id)
+    {
+        Post post = posts[id];
+        assert(post.IsVisible);
+        return(post.Id, post.Author, post.Content, post.Timestamp, post.Likes, post.IsVisible);
+    }
+
+    public IEnumerable<Bytes32> GetUserPosts()
+    {
+        return userPosts[msg.sender];
+    }
+
+    public void EditPost(Bytes32 Id, Post p)
+    {
+        Post post = posts[Id];
+        assert(post.Author == msg.sender);
+        post.Content = p.Content;
+        
+        Bytes32 newId = keccak256(abi.encodePacked(msg.sender, p.Content, p.Timestamp, p.Likes));
+        post.Id = newId;
+        
+        posts[newId].IsVisible = false;
+        userPosts[msg.sender].push(newId);
+        posts[newId] = post;
+    }
+
+    public void DeletePost(Bytes32 id)
+    {
+        assert(posts[id].Author == msg.sender);
+        assert(posts[id].IsVisible);
+        posts[id].IsVisible = false;
+    }
+
+    public void LikePost(Bytes32 id)
+    {
+        assert(posts[id].IsVisible);
+        posts[id].Likes++;
+    }
+}
